@@ -9,14 +9,14 @@ using CrosshairY.UI;
 [assembly: System.Reflection.AssemblyTitle("CrosshairY")]
 [assembly: System.Reflection.AssemblyProduct("CrosshairY")]
 [assembly: System.Reflection.AssemblyDescription("Custom crosshair overlay for any PC game")]
-[assembly: System.Reflection.AssemblyVersion("1.1.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.1.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.2.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.2.0.0")]
 
 namespace CrosshairY
 {
     public static class Program
     {
-        public const string Version = "1.1.0";
+        public const string Version = "1.2.0";
         public static int ShowMessage;
         static Mutex mutex;
 
@@ -83,7 +83,7 @@ namespace CrosshairY
                         if (parts.Length > 1 && parts[0] == "designer") form.Designer.SelectTabForSnap(parts[1]);
                         if (parts.Length > 1 && parts[0] == "crosshairs") form.Crosshairs.SelectTab(int.Parse(parts[1]));
                         for (int i = 0; i < 20; i++) { Application.DoEvents(); Thread.Sleep(15); }
-                        if (parts.Length > 1 && parts[1] == "end")   // e.g. keybinds:end scrolls the page to the bottom
+                        if (parts.Length > 1 && parts[parts.Length - 1] == "end")   // e.g. keybinds:end scrolls the page to the bottom
                         {
                             Func<Control, IEnumerable<Control>> all = null;
                             all = c => c.Controls.Cast<Control>().SelectMany(x => new[] { x }.Concat(all(x)));

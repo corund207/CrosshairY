@@ -11,7 +11,7 @@ namespace CrosshairY.Core
     }
 
     /// <summary>Built-in crosshair designs, authored in the Crosshair X layer format.</summary>
-    public static class Presets
+    public static partial class Presets
     {
         public static readonly string[] Categories = { "All", "Classic", "Dot", "Circle", "Chevron", "T-Style", "Fancy", "Animated", "Recoil" };
 
@@ -134,6 +134,7 @@ namespace CrosshairY.Core
             list.Add(new Preset { Category = "Recoil", Name = "Recoil Dot", Layers = Recoil.MakeDotCrosshair(defaultWeapon, "#00FFFF") });
             list.Add(new Preset { Category = "Recoil", Name = "Onetap Bars", Layers = Recoil.MakeOnetapBars(defaultWeapon) });
             list.Add(new Preset { Category = "Recoil", Name = "Recoil Chevron", Layers = Recoil.MakeChevronCrosshair(defaultWeapon, "#7FFF00") });
+            list.AddRange(RecoilCollection(defaultWeapon));
             return list;
         }
 

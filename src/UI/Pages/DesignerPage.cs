@@ -978,7 +978,8 @@ namespace CrosshairY.UI.Pages
         // --- animate ---
 
         static readonly string[] EaseValues = Easing.Names;
-        static readonly HashSet<string> TimingKeys = new HashSet<string> { "duration", "startDelay", "easing", "mouseButton", "pressType", "releaseBehavior", "direction", "loop", "version", "stages", "triggerTimelines", "tShapeWhenFiring", "firingOffset", "bloomDirection", "finalOpacity", "recoilPattern" };
+        static readonly HashSet<string> TimingKeys = new HashSet<string> { "duration", "startDelay", "easing", "mouseButton", "pressType", "releaseBehavior", "direction", "loop", "version", "stages", "triggerTimelines", "tShapeWhenFiring", "firingOffset", "bloomDirection", "finalOpacity", "recoilPattern",
+            "recoilScale", "recoilRpm", "recoilStable", "recoilFx", "recoilFxEnd", "recoilInvert", "recoilMirror", "recoilLag", "recoilOff" };
 
         Dictionary<string, object> Fo() => J.EnsureObj(L, "firingOptions");
 
@@ -1092,7 +1093,7 @@ namespace CrosshairY.UI.Pages
             if (trig.SelectedIndex == 0)
             {
                 Note("Pick what starts the animation: the Fire key, the Aim key (Keybinds page) or Autoplay. Then choose what changes, or apply a recoil pattern below.");
-                if (isModel) RecoilSection();
+                RecoilSection();
                 return;
             }
             Func<Dictionary<string, object>> f0 = Fo;
@@ -1190,7 +1191,7 @@ namespace CrosshairY.UI.Pages
                     OverrideNum(st, "position", "y", "Position Y", -200, 200, 1, 0, basis);
                     break;
             }
-            if (isModel) RecoilSection();
+            RecoilSection();
         }
 
         /// <summary>Recoil tracking: writes a weapon spray pattern into this layer's fire animation.</summary>
@@ -1237,17 +1238,25 @@ namespace CrosshairY.UI.Pages
                 MainForm.Instance.ShowToast("Weapon: " + sel().Name + " (" + sel().Game + ")", Glyph.Recoil);
             };
             cur.Controls.Add(new Columns(new FieldGroup("Scale", scale), new FieldGroup("Fire rate (RPM)", rpm)));
-            cur.Controls.Add(new Columns(new FieldGroup("Accurate first shots", stable), new Panel { Height = 1, BackColor = Theme.Chrome }));
+            var lag = new FieldBox(Glyph.Layers) { Step = 1, Decimals = 0, Minimum = 0, Maximum = 10 };
+            lag.Value = isTracker ? J.Num(Fo(), "recoilLag") : 0;
+            cur.Controls.Add(new Columns(new FieldGroup("Accurate first shots", stable), new FieldGroup("Trail delay (shots)", lag)));
+            var modeDrop = Drop("Direction", new[] { "Follow the spray", "Pull guide (inverted)", "Mirror sideways" },
+                isTracker ? (J.Bool(Fo(), "recoilInvert") ? 1 : J.Bool(Fo(), "recoilMirror") ? 2 : 0) : 0, i => { });
             var apply = new FlatButton(isTracker ? "Re-apply with these settings" : "Apply recoil pattern", Glyph.Recoil, ButtonKind.Primary);
             apply.Click += (s, e) =>
             {
+                var f = Fo();
+                f["recoilInvert"] = modeDrop.SelectedIndex == 1;
+                f["recoilMirror"] = modeDrop.SelectedIndex == 2;
+                f["recoilLag"] = lag.Value;
                 Recoil.Apply(L, sel(), scale.Value, rpm.Value, (int)stable.Value);
                 Changed(); Commit();
                 MainForm.Instance.ShowToast("Recoil pattern applied — hold left mouse on the canvas to test", Glyph.Recoil);
                 BuildProps();
             };
             cur.Controls.Add(new HStack(apply));
-            Note("Accurate first shots = bullets that land dead center before the recoil kicks in (each gun has its own default). ★ = hand-tuned pattern. Tip: bind Next / Previous Weapon on the Keybinds page to switch guns in game.");
+            Note("Accurate first shots = bullets that land dead center before the recoil kicks in (each gun has its own default). Trail delay makes this layer follow a few shots behind (for trails). Pull guide moves opposite to the spray — the way to drag your mouse. ★ = hand-tuned pattern. Tip: bind Next / Previous Weapon on the Keybinds page to switch guns in game.");
         }
 
         static string PrettyEase(string e)

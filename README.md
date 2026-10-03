@@ -54,6 +54,8 @@ Crosshair X codes are short IDs; CrosshairY fetches the design from the same pub
 
 Recoil crosshairs are timed animations: while you hold **Fire**, a tracker (the top arm of a plus, a center dot or a chevron) walks along a weapon's spray pattern, then snaps back when you let go. Every recoil crosshair has a **weapon picker** — Game › Category › Weapon — in the Browse preview bar, the Saved card menu and the Designer, and you can bind **Next / Previous Weapon** to switch guns in game (the weapon name flashes under the crosshair).
 
+- **46 recoil crosshairs** in Browse › Recoil Tracking: plus, T, bar, dot, ring, box, bracket, chevron, arrow and text designs, with comet trails, heat ramps (green → red as you spray), swelling and stretching trackers, pull guides that show where to drag, mirrored pairs and animated frames.
+- Any layer (lines, shapes, text) can be a tracker; each keeps its own scale, **trail delay**, **direction** (follow / pull guide / mirror) and effects when you switch weapons.
 - **91 weapons**: VALORANT (18), Counter-Strike 2 (34), Rust (15) and Apex Legends (24).
 - **Accurate first shots** per weapon — the tracker stays centered for the bullets that land dead center before recoil kicks in.
 - Fire rate, scale and accurate shots can be tuned per crosshair.

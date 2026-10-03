@@ -235,13 +235,26 @@ namespace CrosshairY.Core
         /// <summary>Writes the pattern into a layer's fire animation (hold to spray, release resets).</summary>
         public static void Apply(Dictionary<string, object> layer, RecoilPattern pattern, double scale = 1, double rpm = 0, int stableShots = 0)
         {
+            // per-layer tracker style, kept whenever the weapon, scale or fire rate changes:
+            //   recoilFx      property overrides that kick in on the first recoil shot (e.g. { dot: { diameter: 6 } })
+            //   recoilFxEnd   values reached on the last bullet, blended across the spray (e.g. a green → red heat ramp)
+            //   recoilInvert  move opposite to the spray — shows where to pull the mouse
+            //   recoilMirror  flip the sideways sway (for symmetric pairs)
+            //   recoilLag     follow the spray this many shots behind (trails)
+            var old = J.Obj(layer, "firingOptions");
+            var fx = J.Obj(old, "recoilFx");
+            var fxEnd = J.Obj(old, "recoilFxEnd");
+            bool invert = J.Bool(old, "recoilInvert"), mirror = J.Bool(old, "recoilMirror");
+            int lag = Math.Max(0, (int)J.Num(old, "recoilLag"));
+
             double useRpm = rpm > 0 ? rpm : pattern.Rpm;
             double shot = 60000.0 / useRpm;
             // keep the layer's resting position when re-applying
             var basePos = J.ObjOrEmpty(layer, "position");
             double bx = J.Num(basePos, "x"), by = J.Num(basePos, "y");
             var pts = pattern.Points;
-            Func<int, Dictionary<string, object>> pos = i => J.O("x", Math.Round(bx + pts[i][0] * scale), "y", Math.Round(by + pts[i][1] * scale));
+            double sy = scale * (invert ? -1 : 1), sx = sy * (mirror ? -1 : 1);
+            Func<int, Dictionary<string, object>> pos = i => J.O("x", Math.Round(bx + pts[i][0] * sx), "y", Math.Round(by + pts[i][1] * sy));
             var fo = Defaults.FiringOptions();
             fo["mouseButton"] = "left";
             fo["pressType"] = "hold";
@@ -251,18 +264,66 @@ namespace CrosshairY.Core
             fo["duration"] = Math.Round(shot / 1000, 4);
             // first-shot accuracy: stay centered while the first N bullets fire, then follow the spray
             int stable = stableShots >= 1 ? stableShots : pattern.StableShots;
-            fo["startDelay"] = Math.Round(Math.Max(0, stable - 1) * shot / 1000, 4);
+            fo["startDelay"] = Math.Round((Math.Max(0, stable - 1) + lag) * shot / 1000, 4);
             fo["position"] = pos(Math.Min(1, pts.Length - 1));
             var stages = new List<object>();
             for (int i = 2; i < pts.Length; i++)
                 stages.Add(J.O("duration", Math.Round(shot / 1000, 4), "easing", "linear", "position", pos(i)));
             fo["stages"] = stages;
+            if (fx != null || fxEnd != null)
+            {
+                // stages inherit from the previous one, so a plain effect only needs the first shot; a ramp sets every bullet
+                int n = pts.Length;
+                for (int k = 1; k < n; k++)
+                {
+                    if (fxEnd == null && k > 1) break;
+                    var target = k == 1 ? fo : (Dictionary<string, object>)stages[k - 2];
+                    // ramps peak by the 10th bullet (a typical spray), then hold
+                    BlendFx(target, layer, fx, fxEnd, n > 2 ? Math.Min(1, (k - 1) / (double)Math.Min(n - 2, 9)) : 1);
+                }
+            }
             // remembered so the weapon can be switched later with the same settings
             fo["recoilPattern"] = pattern.Key;
             fo["recoilScale"] = scale;
             fo["recoilRpm"] = rpm > 0 && Math.Abs(rpm - pattern.Rpm) > 0.5 ? rpm : 0;
             fo["recoilStable"] = stableShots >= 1 && stableShots != pattern.StableShots ? stableShots : 0;
+            if (fx != null) fo["recoilFx"] = J.CloneObj(fx);
+            if (fxEnd != null) fo["recoilFxEnd"] = J.CloneObj(fxEnd);
+            if (invert) fo["recoilInvert"] = true;
+            if (mirror) fo["recoilMirror"] = true;
+            if (lag > 0) fo["recoilLag"] = (double)lag;
             layer["firingOptions"] = fo;
+        }
+
+        /// <summary>Writes effect values into an animation target: fx (or the layer's own value) blended toward fxEnd by t.</summary>
+        static void BlendFx(Dictionary<string, object> target, Dictionary<string, object> layer, Dictionary<string, object> fx, Dictionary<string, object> fxEnd, double t)
+        {
+            var keys = new HashSet<string>();
+            if (fx != null) keys.UnionWith(fx.Keys);
+            if (fxEnd != null) keys.UnionWith(fxEnd.Keys);
+            foreach (var k in keys)
+            {
+                object a = J.Get(fx, k), b = J.Get(fxEnd, k);
+                if (a is Dictionary<string, object> || b is Dictionary<string, object>)
+                {
+                    BlendFx(J.EnsureObj(target, k), J.ObjOrEmpty(layer, k), a as Dictionary<string, object>, b as Dictionary<string, object>, t);
+                    continue;
+                }
+                object start = a ?? J.Get(layer, k);
+                target[k] = b == null || start == null ? (start ?? b) : Mix(start, b, t);
+            }
+        }
+
+        static object Mix(object a, object b, double t)
+        {
+            if (a is string sa && b is string sb && ColorUtil.LooksLikeColor(sa) && ColorUtil.LooksLikeColor(sb))
+                return ColorUtil.ToHex(ColorUtil.Lerp(ColorUtil.Parse(sa), ColorUtil.Parse(sb), t), true);
+            if (!(a is string) && !(b is string) && !(a is bool) && !(b is bool))
+            {
+                double x = J.ToNum(a), y = J.ToNum(b);
+                return Math.Round(x + (y - x) * t, 3);
+            }
+            return t >= 0.5 ? b : a;
         }
 
         public static bool HasRecoil(List<object> layers) => layers != null && layers.OfType<Dictionary<string, object>>().Any(l => J.Str(J.Obj(l, "firingOptions"), "recoilPattern") != null);
