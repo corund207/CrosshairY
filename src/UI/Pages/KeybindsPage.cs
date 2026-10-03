@@ -103,6 +103,40 @@ namespace CrosshairY.UI.Pages
                 st.Controls.Add(note);
             }
 
+            // ---------------- recoil loadout ----------------
+            st.Controls.Add(new Panel { Height = Theme.S(10), BackColor = Theme.Bg });
+            st.Controls.Add(new CaptionLabel(Glyph.Recoil, "Recoil loadout"));
+            st.Controls.Add(new WrapLabel("Pick the guns you use and give each one a key. Bind them to the same keys as your in-game weapon slots (1, 2, 3…) and the recoil tracker switches pattern when you swap guns. Next / Previous Weapon cycle through this list. Works with whichever recoil crosshair is active.", Theme.Small, Theme.TextDim));
+            var loadout = new KeyTable("Weapon");
+            foreach (var sl in p.RecoilSlots.ToList())
+            {
+                var slot = sl;
+                var pat = slot.Weapon == "off" ? null : Recoil.Find(slot.Weapon);
+                string label = slot.Weapon == "off" ? "Recoil off (knife / utility)" : pat != null ? pat.Name + "  ·  " + pat.Game : "Unknown weapon";
+                var change = new FlatButton("Change", Glyph.Swap, ButtonKind.Secondary) { Height = Theme.S(36) };
+                change.AutoSizeWidth();
+                change.Click += (s, e) => ShowWeaponMenu(change, w => { slot.Weapon = w; Notify(); Build(); });
+                var remove = new FlatButton("", Glyph.Delete, ButtonKind.Ghost) { Width = Theme.S(36), Height = Theme.S(36) };
+                remove.Click += (s, e) => { p.RecoilSlots.Remove(slot); Notify(); Build(); };
+                var extra = new HStack(change, remove) { Width = change.Width + remove.Width + Theme.S(8), Height = Theme.S(36) };
+                loadout.AddRow(slot.Weapon == "off" ? Glyph.Close : Glyph.Recoil, label, extra,
+                    Cap(slot.Key, false, v => slot.Key = v), Cap(slot.PadKey, true, v => slot.PadKey = v));
+            }
+            var addSlot = new FlatButton("Add weapon", Glyph.Add, ButtonKind.Ghost) { Height = Theme.S(40) };
+            addSlot.AutoSizeWidth();
+            addSlot.Click += (s, e) => ShowWeaponMenu(addSlot, w =>
+            {
+                p.RecoilSlots.Add(new RecoilSlot { Weapon = w, Key = DefaultSlotKey(p) });
+                Notify();
+                Build();
+            });
+            var quick = new FlatButton("Quick setup", Glyph.Lightning, ButtonKind.Ghost) { Height = Theme.S(40) };
+            quick.AutoSizeWidth();
+            quick.Click += (s, e) => ShowQuickSetup(quick, p);
+            var footer = new HStack(addSlot, quick) { Height = Theme.S(40), Width = addSlot.Width + quick.Width + Theme.S(8) };
+            loadout.AddFooter(footer);
+            st.Controls.Add(loadout);
+
             st.Controls.Add(new Panel { Height = Theme.S(10), BackColor = Theme.Bg });
             st.Controls.Add(new CaptionLabel(Glyph.Crosshair, "Crosshair shortcuts"));
             var shortcuts = new KeyTable("Crosshairs");
@@ -130,6 +164,56 @@ namespace CrosshairY.UI.Pages
 
             st.ResumeLayout(true);
             scroll.PerformLayout();
+        }
+
+        /// <summary>Game › Category · Weapon menu, plus "Recoil off".</summary>
+        void ShowWeaponMenu(Control anchor, Action<string> picked)
+        {
+            var m = Menus.Create();
+            foreach (var game in Recoil.Games)
+            {
+                var gm = new ToolStripMenuItem(game) { ForeColor = Theme.Text };
+                string lastCat = null;
+                foreach (var w in Recoil.ForGame(game))
+                {
+                    if (lastCat != null && w.Category != lastCat) gm.DropDownItems.Add(new ToolStripSeparator());
+                    lastCat = w.Category;
+                    var key = w.Key;
+                    gm.DropDownItems.Item(w.Label + (w.HandTuned ? "  ★" : ""), () => picked(key));
+                }
+                m.Items.Add(gm);
+            }
+            m.Items.Sep();
+            m.Items.Item("Recoil off (knife / utility)", () => picked("off"));
+            m.Show(anchor, new Point(0, anchor.Height + 2));
+        }
+
+        /// <summary>Suggests the next free number key (1–9) for a new loadout slot.</summary>
+        static string DefaultSlotKey(Profile p)
+        {
+            for (int i = 1; i <= 9; i++)
+                if (!p.RecoilSlots.Any(s => s.Key == i.ToString())) return i.ToString();
+            return "";
+        }
+
+        /// <summary>One-click loadouts that match each game's weapon-slot keys.</summary>
+        void ShowQuickSetup(Control anchor, Profile p)
+        {
+            var m = Menus.Create();
+            void Set(params (string weapon, string key)[] slots)
+            {
+                if (p.RecoilSlots.Count > 0 && !DarkDialog.Confirm(Main, "Replace loadout", "Replace your current recoil loadout?", "Replace")) return;
+                p.RecoilSlots = slots.Select(s => new RecoilSlot { Weapon = s.weapon, Key = s.key }).ToList();
+                Notify();
+                Build();
+            }
+            m.Items.Item("VALORANT — Vandal (1) · Sheriff (2) · off (3)", () => Set(("VALORANT|Vandal", "1"), ("VALORANT|Sheriff", "2"), ("off", "3")));
+            m.Items.Item("VALORANT — Phantom (1) · Ghost (2) · off (3)", () => Set(("VALORANT|Phantom", "1"), ("VALORANT|Ghost", "2"), ("off", "3")));
+            m.Items.Item("CS2 — AK-47 (1) · Glock-18 (2) · off (3)", () => Set(("Counter-Strike 2|AK-47", "1"), ("Counter-Strike 2|Glock-18", "2"), ("off", "3")));
+            m.Items.Item("CS2 — M4A4 (1) · USP-S (2) · off (3)", () => Set(("Counter-Strike 2|M4A4", "1"), ("Counter-Strike 2|USP-S", "2"), ("off", "3")));
+            m.Items.Item("Rust — Assault Rifle (1) · Thompson (2) · Python (3)", () => Set(("Rust|Assault Rifle", "1"), ("Rust|Thompson", "2"), ("Rust|Python Revolver", "3")));
+            m.Items.Item("Apex — R-301 (1) · R-99 (2)", () => Set(("Apex Legends|R-301", "1"), ("Apex Legends|R-99", "2")));
+            m.Show(anchor, new Point(0, anchor.Height + 2));
         }
 
         /// <summary>Rounded table: header row (label | keyboard icon | gamepad icon) and binding rows.</summary>

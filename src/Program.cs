@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -8,14 +9,14 @@ using CrosshairY.UI;
 [assembly: System.Reflection.AssemblyTitle("CrosshairY")]
 [assembly: System.Reflection.AssemblyProduct("CrosshairY")]
 [assembly: System.Reflection.AssemblyDescription("Custom crosshair overlay for any PC game")]
-[assembly: System.Reflection.AssemblyVersion("1.0.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.0.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.1.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.1.0.0")]
 
 namespace CrosshairY
 {
     public static class Program
     {
-        public const string Version = "1.0.0";
+        public const string Version = "1.1.0";
         public static int ShowMessage;
         static Mutex mutex;
 
@@ -71,6 +72,8 @@ namespace CrosshairY
                 form.StartPosition = FormStartPosition.Manual;
                 form.Location = new System.Drawing.Point(-30000, -30000);
                 form.ShowInTaskbar = false;
+                if (args.Length > 3 && int.TryParse(args[3], out int snapH)) form.Height = snapH;   // optional: taller capture
+                System.IO.Directory.CreateDirectory(args[2]);
                 form.Shown += (s, e) => form.BeginInvoke(new Action(() =>
                 {
                     foreach (var key in args[1].Split(','))
@@ -80,6 +83,14 @@ namespace CrosshairY
                         if (parts.Length > 1 && parts[0] == "designer") form.Designer.SelectTabForSnap(parts[1]);
                         if (parts.Length > 1 && parts[0] == "crosshairs") form.Crosshairs.SelectTab(int.Parse(parts[1]));
                         for (int i = 0; i < 20; i++) { Application.DoEvents(); Thread.Sleep(15); }
+                        if (parts.Length > 1 && parts[1] == "end")   // e.g. keybinds:end scrolls the page to the bottom
+                        {
+                            Func<Control, IEnumerable<Control>> all = null;
+                            all = c => c.Controls.Cast<Control>().SelectMany(x => new[] { x }.Concat(all(x)));
+                            foreach (var sh in all(form).OfType<UI.Controls.ScrollHost>().Where(x => x.Visible))
+                                sh.AutoScrollPosition = new System.Drawing.Point(0, 100000);
+                            for (int i = 0; i < 20; i++) { Application.DoEvents(); Thread.Sleep(15); }
+                        }
                         using (var bmp = new System.Drawing.Bitmap(form.Width, form.Height))
                         {
                             // PrintWindow captures the real DWM rendering (custom title bar, floating panels)

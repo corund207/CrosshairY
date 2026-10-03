@@ -250,11 +250,43 @@ namespace CrosshairY.Core
             ApplyCrosshair(list[i].Id, true);
         }
 
-/// <summary>Switches the active recoil crosshair to the next/previous gun of the same game.</summary>
+        /// <summary>Switches the active recoil crosshair to a loadout slot's weapon ("off" disables tracking).</summary>
+        public void SelectRecoilSlot(RecoilSlot slot)
+        {
+            var e = ActiveCrosshair;
+            if (e == null || !Recoil.HasRecoil(e.Layers)) { ShowOverlayLabel("No recoil crosshair"); return; }
+            var pattern = slot.Weapon == "off" ? null : Recoil.Find(slot.Weapon);
+            if (pattern == null && slot.Weapon != "off") return;
+            Recoil.SetWeapon(e.Layers, pattern);
+            e.Updated = DateTime.UtcNow;
+            State.MarkLibraryChanged();
+            PushCrosshair();
+            if (pattern != null) WeaponChanged?.Invoke(pattern);
+            ShowOverlayLabel(pattern == null ? "Recoil off" : pattern.Name);
+        }
+
+        /// <summary>Index of the loadout slot matching the active crosshair's current weapon, or -1.</summary>
+        int CurrentSlotIndex(Profile p, CrosshairEntry e)
+        {
+            if (Recoil.IsOff(e.Layers)) return p.RecoilSlots.FindIndex(s => s.Weapon == "off");
+            var w = Recoil.CurrentWeapon(e.Layers);
+            return w == null ? -1 : p.RecoilSlots.FindIndex(s => s.Weapon == w.Key);
+        }
+
+        /// <summary>Next/previous gun: through the profile's recoil loadout if one is set up, otherwise through the game's weapons.</summary>
         public void CycleWeapon(int dir)
         {
             var e = ActiveCrosshair;
-            if (e == null || !Recoil.HasRecoil(e.Layers)) { Toast?.Invoke("The active crosshair has no recoil pattern"); return; }
+            if (e == null || !Recoil.HasRecoil(e.Layers)) { Toast?.Invoke("The active crosshair has no recoil pattern"); ShowOverlayLabel("No recoil crosshair"); return; }
+            var prof = Profile;
+            var slots = prof.RecoilSlots.Where(s => s.Weapon == "off" || Recoil.Find(s.Weapon) != null).ToList();
+            if (slots.Count > 0)
+            {
+                int i = CurrentSlotIndex(prof, e);
+                int cur = i < 0 ? -1 : slots.IndexOf(prof.RecoilSlots[i]);
+                SelectRecoilSlot(slots[((cur + dir) % slots.Count + slots.Count) % slots.Count]);
+                return;
+            }
             var next = Recoil.Cycle(Recoil.CurrentWeapon(e.Layers), dir);
             Recoil.SetWeapon(e.Layers, next);
             e.Updated = DateTime.UtcNow;
@@ -481,6 +513,8 @@ namespace CrosshairY.Core
             if (Matches(p.CenterKey, ev)) CenterPosition();
             if (Matches(p.SizeUpKey, ev)) ChangeScale(0.25);
             if (Matches(p.SizeDownKey, ev)) ChangeScale(-0.25);
+            foreach (var slot in p.RecoilSlots.ToList())
+                if (Matches(slot.Key, ev) || (pad && Matches(slot.PadKey, ev))) { SelectRecoilSlot(slot); break; }
             foreach (var b in p.CrosshairBinds.ToList())
                 if ((Matches(b.Key, ev) || (pad && Matches(b.PadKey, ev))) && State.Find(b.CrosshairId) != null) { ApplyCrosshair(b.CrosshairId, true); break; }
         }

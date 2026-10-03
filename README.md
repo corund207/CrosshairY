@@ -57,6 +57,9 @@ Recoil crosshairs are timed animations: while you hold **Fire**, a tracker (the 
 - **91 weapons**: VALORANT (18), Counter-Strike 2 (34), Rust (15) and Apex Legends (24).
 - **Accurate first shots** per weapon — the tracker stays centered for the bullets that land dead center before recoil kicks in.
 - Fire rate, scale and accurate shots can be tuned per crosshair.
+- **Recoil loadout** (Keybinds page) — pick the guns you use and give each one a key, ideally the same keys as your in-game weapon slots. Pressing it switches the active recoil crosshair to that gun's pattern; a **Recoil off** slot (knife / utility) stops the tracker. **Quick setup** fills in common VALORANT, CS2, Rust and Apex loadouts, and Next / Previous Weapon cycle through your loadout.
+
+<img src="docs/images/loadout.png" alt="Recoil loadout keybinds" width="100%">
 
 > Patterns are approximations, not data extracted from the games. The most popular rifles (★) are hand-tuned; the rest are generated from each gun's fire rate, magazine and recoil traits. Adjust **Scale** for your resolution and field of view. CrosshairY never reads or modifies game memory.
 

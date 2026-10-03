@@ -14,6 +14,14 @@ namespace CrosshairY.Core
         public string CrosshairId = "";
     }
 
+    /// <summary>A recoil loadout slot: a weapon (or "off") switched to with a key / controller button.</summary>
+    public sealed class RecoilSlot
+    {
+        public string Weapon = "";   // Recoil pattern key ("Game|Name") or "off"
+        public string Key = "";
+        public string PadKey = "";
+    }
+
     public sealed class SavedPosition
     {
         public string Name = "Position";
@@ -48,6 +56,7 @@ namespace CrosshairY.Core
         public string SizeUpKey = "", SizeDownKey = "";
         public List<CrosshairBind> CrosshairBinds = new List<CrosshairBind>();
         public List<SavedPosition> Positions = new List<SavedPosition>();
+        public List<RecoilSlot> RecoilSlots = new List<RecoilSlot>();
 
         public Profile Clone()
         {
@@ -56,6 +65,7 @@ namespace CrosshairY.Core
             p.Processes = new List<string>(Processes);
             p.CrosshairBinds = CrosshairBinds.Select(b => new CrosshairBind { Key = b.Key, PadKey = b.PadKey, CrosshairId = b.CrosshairId }).ToList();
             p.Positions = Positions.Select(x => new SavedPosition { Name = x.Name, X = x.X, Y = x.Y }).ToList();
+            p.RecoilSlots = RecoilSlots.Select(x => new RecoilSlot { Weapon = x.Weapon, Key = x.Key, PadKey = x.PadKey }).ToList();
             return p;
         }
 
@@ -68,7 +78,8 @@ namespace CrosshairY.Core
             "centerKey", CenterKey, "sizeUpKey", SizeUpKey, "sizeDownKey", SizeDownKey,
             "togglePad", TogglePad, "firePad", FirePad, "aimPad", AimPad, "reloadPad", ReloadPad, "nextPad", NextPad, "prevPad", PrevPad, "positionKeys", PositionKeys, "nextWeaponKey", NextWeaponKey, "prevWeaponKey", PrevWeaponKey, "nextWeaponPad", NextWeaponPad, "prevWeaponPad", PrevWeaponPad,
             "crosshairBinds", CrosshairBinds.Select(b => (object)J.O("key", b.Key, "padKey", b.PadKey, "crosshairId", b.CrosshairId)).ToList(),
-            "positions", Positions.Select(p => (object)J.O("name", p.Name, "x", p.X, "y", p.Y)).ToList());
+            "positions", Positions.Select(p => (object)J.O("name", p.Name, "x", p.X, "y", p.Y)).ToList(),
+            "recoilSlots", RecoilSlots.Select(s => (object)J.O("weapon", s.Weapon, "key", s.Key, "padKey", s.PadKey)).ToList());
 
         public static Profile FromJson(object o)
         {
@@ -113,6 +124,8 @@ namespace CrosshairY.Core
             if (p.Scale <= 0) p.Scale = 1;
             foreach (var b in J.List(o, "crosshairBinds") ?? new List<object>())
                 p.CrosshairBinds.Add(new CrosshairBind { Key = J.Str(b, "key", ""), PadKey = J.Str(b, "padKey", ""), CrosshairId = J.Str(b, "crosshairId", "") });
+            foreach (var s in J.List(o, "recoilSlots") ?? new List<object>())
+                p.RecoilSlots.Add(new RecoilSlot { Weapon = J.Str(s, "weapon", ""), Key = J.Str(s, "key", ""), PadKey = J.Str(s, "padKey", "") });
             foreach (var x in J.List(o, "positions") ?? new List<object>())
                 p.Positions.Add(new SavedPosition { Name = J.Str(x, "name", "Position"), X = (int)J.Num(x, "x"), Y = (int)J.Num(x, "y") });
             return p;
@@ -179,7 +192,8 @@ namespace CrosshairY.Core
     /// <summary>All persisted data plus change notifications.</summary>
     public sealed class AppState
     {
-        public static readonly string DataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CrosshairY");
+        public static readonly string DataDir = Environment.GetEnvironmentVariable("CROSSHAIRY_DATA") is string d && d.Length > 0
+            ? d : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CrosshairY");
         static string SettingsFile => Path.Combine(DataDir, "settings.json");
         static string LibraryFile => Path.Combine(DataDir, "library.json");
         static string ProfilesFile => Path.Combine(DataDir, "profiles.json");

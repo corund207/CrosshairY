@@ -267,6 +267,9 @@ namespace CrosshairY.Core
 
         public static bool HasRecoil(List<object> layers) => layers != null && layers.OfType<Dictionary<string, object>>().Any(l => J.Str(J.Obj(l, "firingOptions"), "recoilPattern") != null);
 
+        /// <summary>True when recoil tracking was switched off with a "Recoil off" loadout slot.</summary>
+        public static bool IsOff(List<object> layers) => layers != null && layers.OfType<Dictionary<string, object>>().Any(l => J.Bool(J.Obj(l, "firingOptions"), "recoilOff"));
+
         /// <summary>The weapon currently used by a crosshair's recoil layer(s).</summary>
         public static RecoilPattern CurrentWeapon(List<object> layers)
         {
@@ -279,7 +282,7 @@ namespace CrosshairY.Core
             return null;
         }
 
-        /// <summary>Switches every recoil layer of a crosshair to another weapon, keeping each layer's scale.</summary>
+        /// <summary>Switches every recoil layer of a crosshair to another weapon, keeping each layer's scale. Null turns tracking off.</summary>
         public static bool SetWeapon(List<object> layers, RecoilPattern pattern)
         {
             bool any = false;
@@ -287,6 +290,14 @@ namespace CrosshairY.Core
             {
                 var fo = J.Obj(l, "firingOptions");
                 if (J.Str(fo, "recoilPattern") == null) continue;
+                if (pattern == null)
+                {
+                    // keep the pattern so it can be re-enabled, but stop the animation from triggering
+                    fo["mouseButton"] = "none";
+                    fo["recoilOff"] = true;
+                    any = true;
+                    continue;
+                }
                 double scale = J.Num(fo, "recoilScale", 1);
                 Apply(l, pattern, scale <= 0 ? 1 : scale);
                 any = true;
@@ -305,7 +316,7 @@ namespace CrosshairY.Core
             {
                 var fo = J.Obj(l, "firingOptions");
                 var p = Find(J.Str(fo, "recoilPattern"));
-                if (p == null || J.Num(fo, "recoilRpm") > 0) continue;
+                if (p == null || J.Num(fo, "recoilRpm") > 0 || J.Bool(fo, "recoilOff")) continue;
                 string before = Json.Serialize(fo);
                 Apply(l, p, J.Num(fo, "recoilScale", 1) <= 0 ? 1 : J.Num(fo, "recoilScale", 1), 0, (int)J.Num(fo, "recoilStable"));
                 if (Json.Serialize(J.Obj(l, "firingOptions")) != before) changed = true;
