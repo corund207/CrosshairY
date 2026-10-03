@@ -1,0 +1,15 @@
+# build output
+bin/
+build/
+*.exe
+*.pdb
+
+# compiler downloaded by build.ps1
+.tools/
+
+# editor / OS
+.vs/
+.vscode/
+*.user
+Thumbs.db
+desktop.ini
