@@ -1,0 +1,394 @@
+---
+import '../styles/site.css';
+import Zones from '../components/Zones.astro';
+
+const REPO = 'corund207/CrosshairY';
+const DOWNLOAD = `https://github.com/${REPO}/releases/latest/download/CrosshairY.exe`;
+const GH = `https://github.com/${REPO}`;
+
+// Release data is baked in at build time and refreshed in the browser (see site.js).
+type Rev = { version: string; date: string; summary: string; url: string };
+let releases: any[] = [];
+try {
+  const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=12`, {
+    headers: { 'User-Agent': 'crosshairy-site', Accept: 'application/vnd.github+json' },
+  });
+  if (res.ok) releases = await res.json();
+} catch {}
+releases = releases.filter((r) => !r.draft && !r.prerelease);
+
+function summarize(body: string): string {
+  const text = (body || '').replace(/\r/g, '');
+  const h3 = text.match(/^###\s+(.+)$/m);
+  const line = h3 ? h3[1] : (text.split('\n').find((l) => l.trim() && !l.startsWith('#')) ?? '');
+  return line.replace(/\*\*|`|<[^>]+>/g, '').replace(/\s+—.*$/, '').trim();
+}
+
+const latest = releases[0];
+const asset = latest?.assets?.find((a: any) => a.name === 'CrosshairY.exe');
+const rel = {
+  version: latest ? String(latest.tag_name).replace(/^v/, '') : '1.2.0',
+  date: latest ? String(latest.published_at).slice(0, 10) : '2026-10-03',
+  size: asset ? (asset.size / 1048576).toFixed(1) + ' MB' : '2.8 MB',
+  sha: asset?.digest ? String(asset.digest).replace('sha256:', '').toUpperCase() : '7834A8F26339B2FCF3FB9C0DA12391B3B42359183BBE25A0558393D738ED4BE7',
+};
+const revs: Rev[] = releases.length
+  ? releases.map((r) => ({ version: String(r.tag_name).replace(/^v/, ''), date: String(r.published_at).slice(0, 10), summary: summarize(r.body), url: r.html_url }))
+  : [
+      { version: '1.2.0', date: '2026-10-03', summary: '42 new recoil crosshairs and tracker styles', url: `${GH}/releases/tag/v1.2.0` },
+      { version: '1.1.0', date: '2026-10-03', summary: 'Recoil loadout keybinds', url: `${GH}/releases/tag/v1.1.0` },
+      { version: '1.0.0', date: '2026-10-03', summary: 'First release', url: `${GH}/releases/tag/v1.0.0` },
+    ];
+
+// Community gallery, also refreshed in the browser.
+type G = { id: string; name: string; author: string; category: string };
+let gallery: G[] = [];
+try {
+  const res = await fetch(`https://raw.githubusercontent.com/${REPO}/main/gallery/gallery.json`);
+  if (res.ok) gallery = ((await res.json()).crosshairs ?? []).map((c: any) => ({ id: c.id, name: c.name, author: c.author ?? '', category: c.category ?? '' }));
+} catch {}
+const preview = (id: string) => `https://raw.githubusercontent.com/${REPO}/main/gallery/previews/${id}.png`;
+
+const sheets = [
+  ['01', 'Arrangement', 's01'],
+  ['02', 'Recoil', 's02'],
+  ['03', 'Details', 's03'],
+  ['04', 'Parts', 's04'],
+  ['05', 'Gallery', 's05'],
+  ['06', 'Install', 's06'],
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CrosshairY: free crosshair overlay for Windows</title>
+    <meta name="description" content="CrosshairY draws a custom crosshair over any game, including recoil crosshairs that follow your gun's spray. Free and open source for Windows 10 and 11." />
+    <meta name="theme-color" content="#0e1012" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="CrosshairY: free crosshair overlay for Windows" />
+    <meta property="og:description" content="Any crosshair, on the exact center pixel of every game. Recoil crosshairs that follow your gun's spray. Free and open source." />
+    <meta property="og:image" content="https://crosshairy.vercel.app/shots/recoil.png" />
+    <meta property="og:type" content="website" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip" href="#s01">Skip to content</a>
+
+    <header class="strip">
+      <div class="strip-inner">
+        <a class="mark" href="#s01" aria-label="CrosshairY home">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="none" stroke="#E9E6DF" stroke-width="2.4"/><g fill="#0E1012"><rect x="14" y="3" width="4" height="8"/><rect x="14" y="21" width="4" height="8"/></g><g fill="#F5A524"><rect x="15" y="5" width="2" height="6"/><rect x="15" y="21" width="2" height="6"/><rect x="5" y="15" width="6" height="2"/><rect x="21" y="15" width="6" height="2"/><rect x="14.5" y="14.5" width="3" height="3"/></g></svg>
+          <span>Crosshair<span class="y">Y</span></span>
+        </a>
+        <nav class="tabs" aria-label="Sheets">
+          {sheets.map(([n, t, id]) => (
+            <a href={`#${id}`} data-sheet={id} aria-keyshortcuts={String(Number(n))}><span class="n">{n}</span><span class="t">{t}</span></a>
+          ))}
+        </nav>
+        <a class="btn btn-amber strip-dl" href={DOWNLOAD} data-dl>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v9M4 6.5 8 10.5 12 6.5M2 14h12" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          <span class="label">Download</span>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============================================================ 01 GENERAL ARRANGEMENT -->
+      <section class="sheet" id="s01" aria-labelledby="h01">
+        <Zones />
+        <div class="sheet-tag" aria-hidden="true"><span>Sheet <strong>01</strong> of 06</span><span>Scale 12:1</span></div>
+        <div class="sheet-body ga">
+          <div class="drawing">
+            <svg viewBox="0 0 900 640" role="img" aria-label="Engineering drawing of a CrosshairY plus crosshair at 12 times scale: arm length 5 pixels, gap 6, thickness 2, total span 22, with five numbered callouts.">
+              <defs>
+                <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 10 5 0 9z" fill="#45C4D6" /></marker>
+              </defs>
+              <!-- overlay window -->
+              <rect class="win fade" x="40.5" y="30.5" width="820" height="580" style="--d:100ms" />
+              <text x="54" y="54" class="fade corner" style="--d:150ms">OVERLAY WINDOW · CLICK-THROUGH · ALWAYS ON TOP</text>
+              <!-- centerlines -->
+              <line class="cl" x1="220" y1="330" x2="680" y2="330" />
+              <line class="cl" x1="450" y1="112" x2="450" y2="548" />
+              <!-- outline boundary (1 px = 12 units) -->
+              <g class="ink" fill="none" stroke-width="1">
+                <rect x="426.5" y="186.5" width="47" height="83" />
+                <rect x="426.5" y="390.5" width="47" height="83" />
+                <rect x="306.5" y="306.5" width="83" height="47" />
+                <rect x="510.5" y="306.5" width="83" height="47" />
+                <rect x="426.5" y="306.5" width="47" height="47" />
+              </g>
+              <!-- the reticle -->
+              <g fill="#F5A524">
+                <rect x="438" y="198" width="24" height="60" />
+                <rect x="438" y="402" width="24" height="60" />
+                <rect x="318" y="318" width="60" height="24" />
+                <rect x="522" y="318" width="60" height="24" />
+                <rect x="438" y="318" width="24" height="24" />
+              </g>
+              <!-- dimensions -->
+              <g class="dim" stroke-width="1" fill="none">
+                <line class="draw" pathLength="1" style="--len:1;--d:250ms" x1="420" y1="198.5" x2="368" y2="198.5" />
+                <line class="draw" pathLength="1" style="--len:1;--d:250ms" x1="420" y1="257.5" x2="368" y2="257.5" />
+                <line class="draw" pathLength="1" style="--len:1;--d:380ms" x1="378.5" y1="200" x2="378.5" y2="256" marker-start="url(#arr)" marker-end="url(#arr)" />
+                <line class="draw" pathLength="1" style="--len:1;--d:420ms" x1="480" y1="257.5" x2="532" y2="257.5" />
+                <line class="draw" pathLength="1" style="--len:1;--d:540ms" x1="522.5" y1="260" x2="522.5" y2="328" marker-start="url(#arr)" marker-end="url(#arr)" />
+                <line class="draw" pathLength="1" style="--len:1;--d:560ms" x1="438.5" y1="180" x2="438.5" y2="140" />
+                <line class="draw" pathLength="1" style="--len:1;--d:560ms" x1="461.5" y1="180" x2="461.5" y2="140" />
+                <line class="draw" pathLength="1" style="--len:1;--d:680ms" x1="404" y1="150.5" x2="436" y2="150.5" marker-end="url(#arr)" />
+                <line class="draw" pathLength="1" style="--len:1;--d:680ms" x1="496" y1="150.5" x2="464" y2="150.5" marker-end="url(#arr)" />
+                <line class="draw" pathLength="1" style="--len:1;--d:700ms" x1="318.5" y1="362" x2="318.5" y2="512" />
+                <line class="draw" pathLength="1" style="--len:1;--d:700ms" x1="581.5" y1="362" x2="581.5" y2="512" />
+                <line class="draw" pathLength="1" style="--len:1;--d:820ms" x1="321" y1="502.5" x2="579" y2="502.5" marker-start="url(#arr)" marker-end="url(#arr)" />
+              </g>
+              <g class="dim">
+                <text class="fade" style="--d:500ms" x="364" y="233" text-anchor="end">5</text>
+                <text class="fade" style="--d:650ms" x="532" y="298">6</text>
+                <text class="fade" style="--d:760ms" x="450" y="132" text-anchor="middle">2</text>
+                <text class="fade" style="--d:920ms" x="450" y="530" text-anchor="middle">22</text>
+              </g>
+              <!-- balloons with short notes -->
+              <g class="fade" style="--d:950ms">
+                <path class="leader" d="M299 160 L 434 214" /><circle cx="434" cy="214" r="3" fill="#F5A524" />
+                <g class="balloon"><circle cx="282" cy="153" r="18" /><text x="282" y="153">1</text></g>
+                <text class="note-t" x="254" y="148" text-anchor="end">RECOIL TRACKER</text>
+                <text class="note" x="254" y="168" text-anchor="end">follows your gun's spray</text>
+
+                <path class="leader" d="M626 188 L 466 322" /><circle cx="466" cy="322" r="3" fill="#F5A524" />
+                <g class="balloon"><circle cx="640" cy="176" r="18" /><text x="640" y="176">2</text></g>
+                <text class="note-t" x="668" y="171">EXACT CENTER</text>
+                <text class="note" x="668" y="191">true center pixel</text>
+
+                <path class="leader" d="M680 404 L 590 344" /><circle cx="590" cy="344" r="3" fill="#F5A524" />
+                <g class="balloon"><circle cx="696" cy="414" r="18" /><text x="696" y="414">3</text></g>
+                <text class="note-t" x="724" y="409">ANY DESIGN</text>
+                <text class="note" x="724" y="429">or paste a code</text>
+
+                <path class="leader" d="M592 546 L 478 470" /><circle cx="478" cy="470" r="3" fill="#F5A524" />
+                <g class="balloon"><circle cx="607" cy="557" r="18" /><text x="607" y="557">4</text></g>
+                <text class="note-t" x="635" y="552">OUTLINE</text>
+                <text class="note" x="635" y="572">readable on any map</text>
+
+                <g class="b5">
+                  <path class="leader" d="M128 554 L 42 510" /><circle cx="42" cy="510" r="3" fill="#F5A524" />
+                  <g class="balloon"><circle cx="144" cy="562" r="18" /><text x="144" y="562">5</text></g>
+                  <text class="note-t" x="172" y="557">CLICK-THROUGH WINDOW</text>
+                  <text class="note" x="172" y="577">over any game</text>
+                </g>
+              </g>
+              <text x="846" y="598" text-anchor="end" class="fade corner" style="--d:1000ms">DIMENSIONS IN PX AT 1:1 · DRAWN 12:1</text>
+            </svg>
+          </div>
+
+          <div class="ga-side">
+            <div class="ga-title">
+              <h1 id="h01">Your crosshair, drawn to spec.</h1>
+              <p class="lede">CrosshairY is a free crosshair overlay for Windows. Put any crosshair on the <strong>exact center pixel</strong> of every game, including <strong>recoil crosshairs that follow your gun's spray</strong> while you fire.</p>
+            </div>
+
+            <ol class="notes" aria-label="Callouts">
+              <li><span class="b" aria-hidden="true">1</span><div><h3>Recoil tracker</h3><p>The top arm follows your gun's spray while you hold fire, then snaps back. 91 weapons.</p></div></li>
+              <li><span class="b" aria-hidden="true">2</span><div><h3>Exact center</h3><p>Drawn on the true center pixel of your monitor, in physical pixels.</p></div></li>
+              <li><span class="b" aria-hidden="true">3</span><div><h3>Any design</h3><p>Lines, dots, rings, chevrons, text, images and animations. Paste a VALORANT or CS2 code.</p></div></li>
+              <li><span class="b" aria-hidden="true">4</span><div><h3>Outline</h3><p>Stays readable on bright and dark maps alike.</p></div></li>
+              <li><span class="b" aria-hidden="true">5</span><div><h3>Click-through window</h3><p>Sits over borderless, windowed and most fullscreen games. A still crosshair idles at near-zero CPU.</p></div></li>
+            </ol>
+
+            <div class="tb" aria-label="Download details">
+              <div class="wide title"><span class="k">Title</span><span class="v">CrosshairY · crosshair overlay</span></div>
+              <div class="half"><span class="k">Drawn by</span><span class="v">Jonah</span></div>
+              <div class="half"><span class="k">License</span><span class="v">MIT · open source</span></div>
+              <div><span class="k">Rev</span><span class="v" data-rel="version">{rel.version}</span></div>
+              <div><span class="k">Date</span><span class="v" data-rel="date">{rel.date}</span></div>
+              <div><span class="k">Size</span><span class="v" data-rel="size">{rel.size}</span></div>
+              <div><span class="k">Runs on</span><span class="v">Win 10 / 11</span></div>
+              <div class="wide sha"><span class="k">SHA-256</span><span class="v" data-rel="sha">{rel.sha}</span></div>
+              <div class="go">
+                <a href={DOWNLOAD} data-dl>
+                  <span><span class="big">Download CrosshairY.exe</span><span class="small">Free · one file · no installer · no account</span></span>
+                  <svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 4v19M9 15l8 8 8-8M5 30h24" fill="none" stroke="currentColor" stroke-width="2.6" /></svg>
+                </a>
+              </div>
+            </div>
+            <div class="tb-after"><a href="#s06">Windows warns about new apps: what to click</a><span aria-hidden="true">·</span><a href={GH}>Source on GitHub</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ 02 KINEMATIC STUDY -->
+      <section class="sheet" id="s02" aria-labelledby="h02">
+        <Zones />
+        <div class="sheet-tag" aria-hidden="true"><span>Sheet <strong>02</strong> of 06</span><span>Kinematic study</span></div>
+        <div class="sheet-body kin">
+          <div class="kin-head">
+            <h2 id="h02">Hold to fire.</h2>
+            <p>A recoil crosshair's tracker walks your weapon's spray pattern while you hold fire, then snaps back when you let go. This plot runs the <strong>same 91 patterns</strong> the app uses, at each gun's real fire rate, with its accurate first shots held dead center.</p>
+          </div>
+
+          <div class="plot" id="plot" tabindex="0" role="button" aria-pressed="false" aria-label="Hold to fire the selected weapon's spray. Hold the mouse button, a finger, or the space bar.">
+            <svg id="plot-svg" viewBox="0 0 600 600" aria-hidden="true"></svg>
+            <div class="plot-readout" id="plot-readout" aria-live="polite"></div>
+            <div class="plot-hint"><b>Hold</b> mouse, finger or space to fire</div>
+          </div>
+
+          <div class="kin-side">
+            <div class="games" id="games" role="group" aria-label="Game"></div>
+            <div class="weapons" id="weapons" role="group" aria-label="Weapon"></div>
+            <div class="spec" id="spec"></div>
+            <div class="coords-wrap">
+              <table class="coords" id="coords">
+                <thead><tr><th scope="col">Shot</th><th scope="col">X px</th><th scope="col">Y px</th><th scope="col">t ms</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p class="kin-note">Coordinates are the tracker's offset at 1080p, up is negative. <span style="color:var(--cyan)">Cyan rows</span> are accurate shots. <svg class="tuned" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 .8 9.2 5 5 9.2.8 5z" /></svg> marks a hand-tuned pattern. Patterns are approximations; tune the scale per gun in the app.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ 03 DETAIL VIEWS -->
+      <section class="sheet" id="s03" aria-labelledby="h03">
+        <Zones />
+        <div class="sheet-tag" aria-hidden="true"><span>Sheet <strong>03</strong> of 06</span><span>Detail views 1:1</span></div>
+        <div class="sheet-body">
+          <div class="details-head">
+            <h2 id="h03">The real app, up close.</h2>
+            <p>Screenshots of CrosshairY as it is today: a dark Windows app with a Designer, a library, keybinds and a recoil loadout.</p>
+          </div>
+          <div class="details">
+            <figure class="view a">
+              <div class="frame"><img src="/shots/designer.png" width="1320" height="840" alt="CrosshairY Designer with layers, a pixel canvas and the inspector" loading="lazy" /></div>
+              <figcaption><span class="letter" aria-hidden="true">A</span><span class="cap"><h3>Designer</h3><p>Layers, shapes, text and images on a zoomable pixel canvas, with fire and aim animations and live preview on screen.</p></span></figcaption>
+            </figure>
+            <figure class="view b">
+              <div class="frame"><img src="/shots/loadout.png" width="1320" height="840" alt="Recoil loadout table with a key, scale and crosshair per weapon" loading="lazy" /></div>
+              <figcaption><span class="letter" aria-hidden="true">B</span><span class="cap"><h3>Recoil loadout</h3><p>Bind each gun to your weapon keys; the tracker switches pattern when you do.</p></span></figcaption>
+            </figure>
+            <figure class="view c">
+              <div class="frame"><img src="/shots/browse.png" width="1320" height="840" alt="Browse page with built-in crosshair designs by category" loading="lazy" /></div>
+              <figcaption><span class="letter" aria-hidden="true">C</span><span class="cap"><h3>Browse</h3><p>100+ built-in designs. Click one to try it on screen.</p></span></figcaption>
+            </figure>
+            <figure class="view d">
+              <div class="frame"><img src="/shots/recoil.png" width="1320" height="840" alt="Recoil pattern settings in the Designer" loading="lazy" /></div>
+              <figcaption><span class="letter" aria-hidden="true">D</span><span class="cap"><h3>Recoil pattern</h3><p>Game, weapon, scale, fire rate and accurate shots per tracker.</p></span></figcaption>
+            </figure>
+            <figure class="view e">
+              <div class="frame"><img src="/shots/keybinds.png" width="1320" height="840" alt="Keybinds page with keyboard and controller columns" loading="lazy" /></div>
+              <figcaption><span class="letter" aria-hidden="true">E</span><span class="cap"><h3>Keybinds</h3><p>Keyboard, mouse or controller: toggle, aim, fire, swap.</p></span></figcaption>
+            </figure>
+            <figure class="view f">
+              <div class="frame"><img src="/shots/settings.png" width="1320" height="840" alt="Settings page with display, startup and update options" loading="lazy" /></div>
+              <figcaption><span class="letter" aria-hidden="true">F</span><span class="cap"><h3>Settings</h3><p>Monitor, position, hide from recordings, fullscreen help.</p></span></figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ 04 PARTS LIST -->
+      <section class="sheet" id="s04" aria-labelledby="h04">
+        <Zones />
+        <div class="sheet-tag" aria-hidden="true"><span>Sheet <strong>04</strong> of 06</span><span>Parts list</span></div>
+        <div class="sheet-body">
+          <div class="parts-head">
+            <h2 id="h04">What's in the box.</h2>
+            <p>Everything ships in one <span data-rel="size">{rel.size}</span> file.</p>
+          </div>
+          <div class="bom-wrap">
+            <table class="bom">
+              <thead><tr><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Part</th><th scope="col">Notes</th></tr></thead>
+              <tbody>
+                <tr><td class="item">01</td><td class="qty">1</td><td class="part">Overlay</td><td>Transparent, click-through, always on top. Pick the monitor, offset it, fade it, hide it from recordings.</td></tr>
+                <tr><td class="item">02</td><td class="qty">100+</td><td class="part">Built-in designs</td><td>Classic, dot, circle, chevron, T-style, fancy and animated, plus the community gallery.</td></tr>
+                <tr><td class="item">03</td><td class="qty">46</td><td class="part">Recoil crosshairs</td><td>Plus, dot, ring, box, bracket and chevron trackers; comet trails, heat ramps, pull guides, mirrored pairs.</td></tr>
+                <tr><td class="item">04</td><td class="qty">91</td><td class="part">Spray patterns</td><td>VALORANT 18 · Counter-Strike 2 34 · Rust 15 · Apex Legends 24. Approximations, with per-gun scale.</td></tr>
+                <tr><td class="item">05</td><td class="qty">1</td><td class="part">Pattern editor</td><td>Drag any gun's bullets, test the spray at its real fire rate, add your own guns and games.</td></tr>
+                <tr><td class="item">06</td><td class="qty">1</td><td class="part">Designer</td><td>Layers, shapes, text, images, multi-stage fire / aim / autoplay animations, undo and redo.</td></tr>
+                <tr><td class="item">07</td><td class="qty">Any</td><td class="part">Profiles</td><td>One per game, switched automatically, each with its own crosshair, keybinds and loadout.</td></tr>
+                <tr><td class="item">08</td><td class="qty">2</td><td class="part">Hit reactions</td><td>Hit marker and kill flash on your own keys, or on every shot.</td></tr>
+                <tr><td class="item">09</td><td class="qty">5</td><td class="part">Languages</td><td>English, Español, Deutsch, Français, Português.</td></tr>
+                <tr><td class="item">10</td><td class="qty">0</td><td class="part">Installers, accounts, memory reads</td><td>It's one exe. It never reads or touches the game.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ 05 COMMUNITY -->
+      <section class="sheet" id="s05" aria-labelledby="h05">
+        <Zones />
+        <div class="sheet-tag" aria-hidden="true"><span>Sheet <strong>05</strong> of 06</span><span>Community</span></div>
+        <div class="sheet-body comm">
+          <div class="comm-head">
+            <h2 id="h05">Shared crosshairs.</h2>
+            <p>The community gallery starts with Jonah's own designs; approved submissions from anyone land here too. In the app they're under <strong>Discover › Community gallery</strong>, one click to use.</p>
+            <ol class="steps">
+              <li>Make a crosshair you like in CrosshairY.</li>
+              <li>Open Discover › Community gallery › Share yours.</li>
+              <li>GitHub opens with it filled in. Submit, and once it's approved it's here for everyone.</li>
+            </ol>
+            <a class="btn" href={`${GH}/issues?q=label%3Agallery`}>Submissions on GitHub</a>
+          </div>
+          <div>
+            <div class="gallery" id="gallery">
+              {gallery.map((g) => (
+                <figure>
+                  <div class="gimg"><img src={preview(g.id)} alt={`${g.name} crosshair on a dark and a light background`} loading="lazy" width="492" height="240" onerror="this.parentElement.classList.add('missing')" /></div>
+                  <figcaption><span class="gname">{g.name}</span><span class="gby">{g.author}</span></figcaption>
+                </figure>
+              ))}
+            </div>
+            {gallery.length === 0 && <p class="gallery-status" id="gallery-status">Loading the gallery…</p>}
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ 06 INSTALLATION NOTES -->
+      <section class="sheet" id="s06" aria-labelledby="h06">
+        <Zones />
+        <div class="sheet-tag" aria-hidden="true"><span>Sheet <strong>06</strong> of 06</span><span>General notes</span></div>
+        <div class="sheet-body inst">
+          <div class="inst-head">
+            <h2 id="h06">Installing, honestly.</h2>
+            <p>CrosshairY is one person's free project. Here's exactly what to expect.</p>
+          </div>
+          <ol class="gen-notes">
+            <li><div><h3>Download and run</h3><p>One file, <code>CrosshairY.exe</code>. Put it anywhere and double-click. Windows 10 or 11; nothing else to install.</p></div></li>
+            <li><div><h3>“Windows protected your PC”</h3><p>The exe isn't code-signed (signing costs money every year), so SmartScreen warns about it like any new app. Click <strong>More info</strong>, then <strong>Run anyway</strong>. You only do this once.</p></div></li>
+            <li><div><h3>If it's blocked outright</h3><p>PCs with Smart App Control on block unsigned apps with no Run anyway button. You can build it yourself from the source instead: clone the repo and run <code>.\build.ps1</code>. No Visual Studio needed.</p></div></li>
+            <li><div><h3>What it touches</h3><p>It's a click-through window drawn on top of the game. It never reads or changes game files or memory, has no account, and only goes online to check for updates and load the gallery.</p></div></li>
+            <li><div><h3>Check the file</h3><p>Every release lists its SHA-256 (it's in the title block on sheet 01). In PowerShell, <code>Get-FileHash .\CrosshairY.exe</code> should match.</p></div></li>
+            <li><div><h3>Updates</h3><p>From version 1.3 on, CrosshairY updates itself from GitHub. Your crosshairs and settings carry over.</p></div></li>
+          </ol>
+          <div>
+            <table class="revs" id="revs">
+              <caption>Revisions</caption>
+              <thead><tr><th scope="col">Rev</th><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+              <tbody>
+                {revs.map((r) => (
+                  <tr><td class="rev"><a href={r.url}>{r.version}</a></td><td class="date">{r.date}</td><td>{r.summary}</td></tr>
+                ))}
+              </tbody>
+            </table>
+            <div class="warn-box">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 22 20H2z" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M12 9.5v5M12 17v1.2" stroke="currentColor" stroke-width="1.8" /></svg>
+              <p>Some games' rules don't allow crosshair overlays in competitive play. Check the rules of the game you play before using one there.</p>
+            </div>
+            <p style="margin-top:20px"><a class="btn btn-amber" href={DOWNLOAD} data-dl>Download CrosshairY.exe</a></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>CrosshairY is made by Jonah: free and open source under the MIT license. Not affiliated with any game or publisher; game names belong to their owners.</span>
+      <span><a href={GH}>GitHub</a> · <a href={`${GH}/releases`}>All releases</a> · <a href={`${GH}/blob/main/LICENSE`}>License</a></span>
+    </footer>
+
+    <div class="cad" id="cad" aria-hidden="true"><div class="h"></div><div class="v"></div><div class="box"></div><div class="xy"></div></div>
+
+    <script>
+      import '../scripts/site.js';
+    </script>
+  </body>
+</html>

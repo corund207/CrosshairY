@@ -13,3 +13,12 @@ build/
 *.user
 Thumbs.db
 desktop.ini
+
+# website
+site/node_modules/
+site/dist/
+site/.astro/
+site/.vercel/
+.impeccable/review/
+.impeccable/live/
+.impeccable/questions/

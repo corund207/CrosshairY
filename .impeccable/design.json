@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-03T00:00:00Z",
+  "title": "Design System: CrosshairY",
+  "extensions": {
+    "colorMeta": {
+      "amber": { "role": "primary", "displayName": "Reticle Amber", "canonical": "#f5a524", "cssVar": "--amber", "tonalRamp": ["#2b1b02", "#4f3304", "#7a4f08", "#a86d0e", "#d58c18", "#f5a524", "#fbc46e", "#fde6bf"] },
+      "amber-hi": { "role": "primary", "displayName": "Lit Amber", "canonical": "#ffbb47", "cssVar": "--amber-hi", "tonalRamp": ["#2e1d03", "#553707", "#80550d", "#ad7516", "#db9724", "#ffbb47", "#ffd38a", "#ffefd1"] },
+      "amber-ink": { "role": "primary", "displayName": "Amber Ink", "canonical": "#1b1305", "cssVar": "--amber-ink", "tonalRamp": ["#1b1305", "#3a2a10", "#5c4420", "#7f6035", "#a3804f", "#c5a26f", "#e2c79a", "#f6ead2"] },
+      "cyan": { "role": "secondary", "displayName": "Dimension Cyan", "canonical": "#45c4d6", "cssVar": "--cyan", "tonalRamp": ["#05262b", "#0b434b", "#14636e", "#1f8594", "#30a7b8", "#45c4d6", "#8ddbe6", "#d2f2f6"] },
+      "red": { "role": "tertiary", "displayName": "Centerline Red", "canonical": "#e5534b", "cssVar": "--red", "tonalRamp": ["#2e0907", "#541410", "#7d211b", "#a62f28", "#cc4038", "#e5534b", "#f0948e", "#fad5d2"] },
+      "plot": { "role": "neutral", "displayName": "Plot", "canonical": "#0e1012", "cssVar": "--plot", "tonalRamp": ["#0e1012", "#1a1d20", "#272b2f", "#343a40", "#565d64", "#7c8389", "#b3b6b9", "#e9e6df"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#e9e6df", "cssVar": "--ink", "tonalRamp": ["#22211e", "#3d3b37", "#5b5953", "#7b7872", "#9d9a93", "#c0bdb6", "#e9e6df", "#f7f6f2"] },
+      "ink-2": { "role": "neutral", "displayName": "Ink 2", "canonical": "#b3b6b9", "cssVar": "--ink-2", "tonalRamp": ["#1d1f21", "#36393c", "#53575a", "#72767a", "#93969a", "#b3b6b9", "#d2d4d6", "#eff0f1"] },
+      "ink-3": { "role": "neutral", "displayName": "Ink 3", "canonical": "#7c8389", "cssVar": "--ink-3", "tonalRamp": ["#181a1c", "#2d3135", "#454a4f", "#5f666b", "#7c8389", "#9ea4a9", "#c3c7ca", "#e7e9ea"] },
+      "rule": { "role": "neutral", "displayName": "Rule", "canonical": "#343a40", "cssVar": "--rule", "tonalRamp": ["#121417", "#1f2327", "#2a2f34", "#343a40", "#4a5158", "#666e75", "#8e959b", "#c4c8cb"] },
+      "rule-strong": { "role": "neutral", "displayName": "Rule Strong", "canonical": "#565d64", "cssVar": "--rule-strong", "tonalRamp": ["#16181a", "#272b2e", "#3a3f44", "#565d64", "#6f777e", "#8d949a", "#b3b8bc", "#dcdfe1"] },
+      "grid-minor": { "role": "neutral", "displayName": "Grid Minor", "canonical": "rgba(233, 230, 223, 0.035)", "cssVar": "--grid-minor", "note": "8px drafting grid lines on the plot; background only." },
+      "grid-major": { "role": "neutral", "displayName": "Grid Major", "canonical": "rgba(233, 230, 223, 0.07)", "cssVar": "--grid-major", "note": "40px drafting grid lines on the plot; background only." }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The single sheet-01 headline." },
+      "headline": { "displayName": "Headline", "purpose": "One short declarative sentence per sheet." },
+      "title": { "displayName": "Title", "purpose": "Uppercase callout and note headings; 13px inside numbered lists and captions." },
+      "body": { "displayName": "Body", "purpose": "Paragraphs at 64ch max (lede 44ch), ink-2, tabular figures." },
+      "button": { "displayName": "Button", "purpose": "Uppercase button lettering; sheet tabs use 13px at 0.06em." },
+      "label": { "displayName": "Label", "purpose": "Mono uppercase keys, table headers, sheet tags, zone markers, plot hint (10-12px, 0.05-0.08em)." },
+      "data": { "displayName": "Data", "purpose": "Mono values in title block, spec strip and tables; hashes and code (11-15px)." }
+    },
+    "shadows": [
+      { "name": "none", "value": "none", "purpose": "The system has no elevation shadows. Depth is line layers only." },
+      { "name": "tab-active-rule", "value": "inset 0 -2px 0 var(--amber)", "purpose": "Not elevation: draws the 2px amber underline inside the active sheet tab." },
+      { "name": "focus-ring", "value": "outline: 2px solid var(--amber); outline-offset: 3px", "purpose": "Focus on every focusable element." }
+    ],
+    "motion": [
+      { "name": "draw-in", "value": "900ms cubic-bezier(.16, 1, .3, 1)", "purpose": "Dimension lines draw in once on load, staggered via --d. Only with JS and prefers-reduced-motion: no-preference." },
+      { "name": "fade-in", "value": "500ms ease-out", "purpose": "Drawing labels, balloons and window boundary fade in after their lines. Same guards as draw-in." },
+      { "name": "scroll", "value": "scroll-behavior: smooth; scroll-padding-top: 64px", "purpose": "Sheet-tab and 1-6 key jumps; auto under reduced motion." },
+      { "name": "state", "value": "none", "purpose": "Hover and pressed states switch instantly; no transitions." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "max-width: 720px" },
+      { "name": "single-column", "value": "max-width: 1100px" },
+      { "name": "short-desktop", "value": "(min-width: 1101px) and (max-height: 860px)" },
+      { "name": "fine-pointer", "value": "(hover: hover) and (pointer: fine)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid amber download action; the only solid amber fill in the system.",
+      "html": "<a class=\"ds-btn ds-btn-amber\" href=\"#\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M8 1v9M4 6.5 8 10.5 12 6.5M2 14h12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"/></svg><span>Download</span></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font: 700 14px/1 'B612', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; height: 40px; padding: 0 16px; border: 1px solid var(--rule-strong, #565d64); color: var(--ink, #e9e6df); background: transparent; cursor: pointer; border-radius: 0; } .ds-btn svg { width: 16px; height: 16px; flex: none; } .ds-btn-amber { background: var(--amber, #f5a524); border-color: var(--amber, #f5a524); color: var(--amber-ink, #1b1305); } .ds-btn-amber:hover { background: var(--amber-hi, #ffbb47); border-color: var(--amber-hi, #ffbb47); } .ds-btn:focus-visible { outline: 2px solid var(--amber, #f5a524); outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Hairline secondary action.",
+      "html": "<a class=\"ds-btn-ghost\" href=\"#\">Submissions on GitHub</a>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; font: 700 14px/1 'B612', system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; color: var(--ink, #e9e6df); background: transparent; border: 1px solid var(--rule-strong, #565d64); border-radius: 0; } .ds-btn-ghost:hover { border-color: var(--ink, #e9e6df); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--amber, #f5a524); outline-offset: 3px; }"
+    },
+    {
+      "name": "Sheet Tabs",
+      "kind": "nav",
+      "refersTo": "sheet-tab",
+      "description": "Header border strip with numbered sheet tabs; active tab has amber number and inner underline.",
+      "html": "<nav class=\"ds-tabs\"><a href=\"#\" aria-current=\"true\"><span class=\"n\">01</span>Arrangement</a><a href=\"#\"><span class=\"n\">02</span>Recoil</a><a href=\"#\"><span class=\"n\">03</span>Details</a></nav>",
+      "css": ".ds-tabs { display: flex; height: 56px; background: var(--plot, #0e1012); border-bottom: 1px solid var(--rule-strong, #565d64); } .ds-tabs a { display: flex; align-items: center; gap: 8px; padding: 0 14px; font: 400 13px/1 'B612', system-ui, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; color: var(--ink-2, #b3b6b9); border-left: 1px solid var(--rule, #343a40); } .ds-tabs a:last-child { border-right: 1px solid var(--rule, #343a40); } .ds-tabs .n { font-family: 'B612 Mono', ui-monospace, monospace; font-size: 12px; color: var(--ink-3, #7c8389); } .ds-tabs a:hover, .ds-tabs a[aria-current='true'] { color: var(--ink, #e9e6df); } .ds-tabs a[aria-current='true'] { box-shadow: inset 0 -2px 0 var(--amber, #f5a524); } .ds-tabs a[aria-current='true'] .n { color: var(--amber, #f5a524); } .ds-tabs a:focus-visible { outline: 2px solid var(--amber, #f5a524); outline-offset: -2px; }"
+    },
+    {
+      "name": "Title Block",
+      "kind": "card",
+      "refersTo": "title-block-download",
+      "description": "Crowded drafting title block of mono key/value cells whose largest cell is the amber download.",
+      "html": "<div class=\"ds-tb\"><div class=\"w\"><span class=\"k\">Title</span><span class=\"v t\">CrosshairY · crosshair overlay</span></div><div><span class=\"k\">Rev</span><span class=\"v\">1.2.0</span></div><div><span class=\"k\">Date</span><span class=\"v\">2026-10-03</span></div><div><span class=\"k\">Size</span><span class=\"v\">2.8 MB</span></div><div><span class=\"k\">Runs on</span><span class=\"v\">Win 10 / 11</span></div><a class=\"go\" href=\"#\"><span><span class=\"big\">Download CrosshairY.exe</span><span class=\"small\">Free · one file · no installer</span></span><svg viewBox=\"0 0 34 34\" aria-hidden=\"true\"><path d=\"M17 4v19M9 15l8 8 8-8M5 30h24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\"/></svg></a></div>",
+      "css": ".ds-tb { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--rule-strong, #565d64); font-family: 'B612 Mono', ui-monospace, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; max-width: 440px; } .ds-tb > div { padding: 7px 9px 8px; border-right: 1px solid var(--rule, #343a40); border-bottom: 1px solid var(--rule, #343a40); } .ds-tb > div:nth-child(5) { border-right: 0; } .ds-tb .w { grid-column: span 4; border-right: 0; } .ds-tb .k { display: block; color: var(--ink-3, #7c8389); font-size: 10px; } .ds-tb .v { display: block; color: var(--ink, #e9e6df); font-size: 13px; text-transform: none; letter-spacing: 0; } .ds-tb .v.t { font-family: 'B612', system-ui, sans-serif; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 0.04em; } .ds-tb .go { grid-column: span 4; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; background: var(--amber, #f5a524); color: var(--amber-ink, #1b1305); text-decoration: none; font-family: 'B612', system-ui, sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; } .ds-tb .go:hover { background: var(--amber-hi, #ffbb47); } .ds-tb .go:focus-visible { outline: 2px solid var(--amber, #f5a524); outline-offset: 3px; } .ds-tb .big { font-size: 22px; line-height: 1; } .ds-tb .small { display: block; font-family: 'B612 Mono', ui-monospace, monospace; font-weight: 400; font-size: 11px; letter-spacing: 0.04em; margin-top: 6px; } .ds-tb .go svg { width: 34px; height: 34px; flex: none; }"
+    },
+    {
+      "name": "Segmented Toggle",
+      "kind": "chip",
+      "refersTo": "segment-toggle",
+      "description": "Game selector; pressed cell inverts to ink.",
+      "html": "<div class=\"ds-seg\" role=\"group\"><button aria-pressed=\"true\">Valorant</button><button aria-pressed=\"false\">CS2</button><button aria-pressed=\"false\">Rust</button><button aria-pressed=\"false\">Apex</button></div>",
+      "css": ".ds-seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule-strong, #565d64); max-width: 360px; } .ds-seg button { font: 700 12px/1 'B612', system-ui, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; padding: 12px 6px; background: transparent; color: var(--ink-2, #b3b6b9); border: 0; border-right: 1px solid var(--rule, #343a40); border-radius: 0; cursor: pointer; } .ds-seg button:last-child { border-right: 0; } .ds-seg button:hover { color: var(--ink, #e9e6df); } .ds-seg button[aria-pressed='true'] { background: var(--ink, #e9e6df); color: var(--plot, #0e1012); } .ds-seg button:focus-visible { outline: 2px solid var(--amber, #f5a524); outline-offset: 3px; }"
+    },
+    {
+      "name": "Choice Chip",
+      "kind": "chip",
+      "refersTo": "choice-chip",
+      "description": "Weapon selector chip; selected goes amber hairline and text.",
+      "html": "<div class=\"ds-chips\"><button aria-pressed=\"true\">Vandal</button><button aria-pressed=\"false\">Phantom</button><button aria-pressed=\"false\">Spectre</button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 6px; } .ds-chips button { font: 400 13px/1 'B612', system-ui, sans-serif; padding: 8px 10px; background: transparent; color: var(--ink-2, #b3b6b9); border: 1px solid var(--rule, #343a40); border-radius: 0; cursor: pointer; } .ds-chips button:hover { border-color: var(--ink-3, #7c8389); color: var(--ink, #e9e6df); } .ds-chips button[aria-pressed='true'] { border-color: var(--amber, #f5a524); color: var(--amber, #f5a524); } .ds-chips button:focus-visible { outline: 2px solid var(--amber, #f5a524); outline-offset: 3px; }"
+    },
+    {
+      "name": "Callout Balloon",
+      "kind": "custom",
+      "refersTo": "balloon",
+      "description": "Numbered amber ring used for callouts, in list form.",
+      "html": "<ol class=\"ds-notes\"><li><span class=\"b\">1</span><div><h3>Recoil tracker</h3><p>The top arm follows your gun's spray while you hold fire.</p></div></li><li><span class=\"b\">2</span><div><h3>Exact center</h3><p>Drawn on the true center pixel of your monitor.</p></div></li></ol>",
+      "css": ".ds-notes { list-style: none; margin: 0; padding: 0; max-width: 420px; font-family: 'B612', system-ui, sans-serif; } .ds-notes li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--rule, #343a40); } .ds-notes li:last-child { border-bottom: 1px solid var(--rule, #343a40); } .ds-notes .b { width: 28px; height: 28px; border: 1.5px solid var(--amber, #f5a524); border-radius: 50%; display: grid; place-items: center; color: var(--amber, #f5a524); font-weight: 700; font-size: 14px; background: var(--plot, #0e1012); } .ds-notes h3 { margin: 0 0 2px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink, #e9e6df); } .ds-notes p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink-2, #b3b6b9); }"
+    },
+    {
+      "name": "Parts List Table",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Shared table grammar: mono headers, hairline cells, amber mono quantities, bold ink part names.",
+      "html": "<table class=\"ds-bom\"><thead><tr><th>Item</th><th>Qty</th><th>Part</th><th>Notes</th></tr></thead><tbody><tr><td class=\"item\">01</td><td class=\"qty\">1</td><td class=\"part\">Overlay</td><td>Transparent, click-through, always on top.</td></tr><tr><td class=\"item\">04</td><td class=\"qty\">91</td><td class=\"part\">Spray patterns</td><td>Approximations, with per-gun scale.</td></tr></tbody></table>",
+      "css": ".ds-bom { width: 100%; border-collapse: collapse; border: 1px solid var(--rule-strong, #565d64); font-family: 'B612', system-ui, sans-serif; } .ds-bom th { text-align: left; font-family: 'B612 Mono', ui-monospace, monospace; font-weight: 400; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3, #7c8389); padding: 9px 14px; border-bottom: 1px solid var(--rule-strong, #565d64); border-right: 1px solid var(--rule, #343a40); } .ds-bom td { padding: 13px 14px; border-bottom: 1px solid var(--rule, #343a40); border-right: 1px solid var(--rule, #343a40); vertical-align: top; color: var(--ink-2, #b3b6b9); font-size: 15px; } .ds-bom td.item { font-family: 'B612 Mono', ui-monospace, monospace; color: var(--ink-3, #7c8389); width: 56px; } .ds-bom td.qty { font-family: 'B612 Mono', ui-monospace, monospace; color: var(--amber, #f5a524); font-size: 22px; width: 90px; } .ds-bom td.part { color: var(--ink, #e9e6df); font-weight: 700; } .ds-bom tr:hover td { background: rgba(233, 230, 223, 0.025); }"
+    },
+    {
+      "name": "Drawing Sheet",
+      "kind": "card",
+      "refersTo": "",
+      "description": "Section container: double drawing frame on the gridded plot with a corner sheet tag.",
+      "html": "<section class=\"ds-sheet\"><div class=\"ds-tag\"><span>Sheet <strong>02</strong> of 06</span><span>Kinematic study</span></div><div class=\"ds-body\"><h2>Hold to fire.</h2><p>A recoil crosshair's tracker walks your weapon's spray pattern while you hold fire.</p></div></section>",
+      "css": ".ds-sheet { position: relative; border: 1px solid var(--rule-strong, #565d64); padding: 22px; background-color: var(--plot, #0e1012); background-image: linear-gradient(rgba(233,230,223,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(233,230,223,0.07) 1px, transparent 1px), linear-gradient(rgba(233,230,223,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(233,230,223,0.035) 1px, transparent 1px); background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px; color: var(--ink, #e9e6df); font-family: 'B612', system-ui, sans-serif; } .ds-sheet::before { content: ''; position: absolute; inset: 10px; border: 1px solid var(--rule, #343a40); pointer-events: none; } .ds-tag { position: absolute; top: 10px; right: 10px; display: grid; grid-template-columns: auto auto; border-left: 1px solid var(--rule, #343a40); border-bottom: 1px solid var(--rule, #343a40); font-family: 'B612 Mono', ui-monospace, monospace; font-size: 11px; color: var(--ink-2, #b3b6b9); text-transform: uppercase; letter-spacing: 0.06em; } .ds-tag span { padding: 6px 10px; } .ds-tag span + span { border-left: 1px solid var(--rule, #343a40); } .ds-tag strong { color: var(--ink, #e9e6df); } .ds-body { position: relative; padding: 52px 28px 28px; } .ds-body h2 { margin: 0 0 18px; font-size: 40px; line-height: 1.05; font-weight: 700; letter-spacing: -0.01em; } .ds-body p { margin: 0; max-width: 64ch; color: var(--ink-2, #b3b6b9); line-height: 1.55; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Reticle Spec Sheet",
+    "overview": "The website is the crosshair's engineering drawing: a numbered set of dark drawing sheets in which every part is measured, called out and signed. Each section is a sheet with a double drawing frame, zone markers along its border, a sheet tag in its corner, and drafting furniture (title block, parts list, revision table, balloons with leader lines, dimension lines) doing the work that cards and feature grids do elsewhere. The whole page sits on a dark plot ground ruled with a faint 8 px / 40 px CAD grid.\n\nColor is assigned the way a CAD program assigns it, by layer: amber is the reticle and every action, cyan is dimensions and measurement, red is spray paths and centerlines, off-white is ink linework. Depth comes only from line layers overlapping on the flat plot. Density is deliberately uneven: crowded tabular blocks (the title block, the coordinates table, the parts list) sit against charged empty drawing field around the reticle.\n\nMotion belongs to the drawing. Dimension lines draw in once and labels fade in after them; the recoil plot fires only while held; everything else is still, and nothing moves under reduced motion. On fine pointers the cursor becomes a full-screen CAD crosshair with a live coordinate readout.\n\nThe site borrows two things from the native Windows app, whose own UI is outside this system: the amber accent and the ring-with-four-ticks logo mark, with the final \"Y\" of the wordmark set in amber.",
+    "keyCharacteristics": [
+      "Dark plot ground with a two-weight drafting grid; 1 px hairline rules everywhere.",
+      "Color by drawing layer: amber reticle/actions, cyan dimensions, red spray and centerlines.",
+      "Every section is a numbered sheet in a double frame with zone markers and a sheet tag.",
+      "B612 for lettering, B612 Mono for every number, code and table cell; tabular figures throughout.",
+      "Square corners; circles only for balloons, view letters and plotted points.",
+      "Flat: no elevation shadows, no glow, no colored gradients."
+    ],
+    "rules": [
+      { "name": "The Layer Rule", "body": "A color means a drawing layer, not a mood. Amber is the reticle and what you can act on; cyan is measured; red is the spray and the centerline. Never use cyan or red for decoration, and never use amber for something that is neither the crosshair nor an action.", "section": "colors" },
+      { "name": "The One Amber Fill Rule", "body": "Solid amber fills are reserved for download actions (header button, title-block cell, closing button). Everything else amber is a hairline, a figure or a 1.5 px balloon stroke.", "section": "colors" },
+      { "name": "The Figures Are Mono Rule", "body": "Any number a reader might compare (versions, sizes, hashes, coordinates, item numbers, step counters, zone markers) is set in B612 Mono. Prose numbers inside sentences stay in B612 with tabular figures.", "section": "typography" },
+      { "name": "The Uppercase Is Drafting Lettering Rule", "body": "Uppercase with positive tracking belongs to labels, tabs, buttons and callout titles, the lettering of a drawing. Headlines and body are never uppercase.", "section": "typography" },
+      { "name": "The Line Layers Rule", "body": "To bring something forward, put a line around it or a layer over it. If a surface seems to need a shadow, it needs a frame.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do build every new section as a numbered sheet: double frame (rule-strong outer, rule inner inset 10px), zone markers, and a sheet tag in the top-right corner.",
+      "Do assign color by layer: amber for the reticle and actions, cyan for dimensions and measurements, red for spray paths, hits and centerlines.",
+      "Do set every comparable figure in B612 Mono, and keep labels uppercase with 0.05-0.08em tracking.",
+      "Do present facts as drafting furniture (title block, parts list, revision table, balloons, dimension lines) with hairline cells and zero gap.",
+      "Do leave charged empty field around the drawing and crowd the tabular blocks.",
+      "Do keep motion to dimension lines drawing in once and labels fading in, and remove it under reduced motion.",
+      "Do show the 2px amber outline offset 3px on every focusable element."
+    ],
+    "donts": [
+      "Don't add drop shadows, glow, blur or colored gradient fills; separate layers with lines and plot-filled grounds.",
+      "Don't round corners; circles are only for balloons, view letters, leader terminals and plotted points.",
+      "Don't fill anything solid amber except a download action.",
+      "Don't use cyan or red as decorative accents outside their measurement and spray roles.",
+      "Don't place small uppercase labels above headlines; the sheet tag in the frame corner is the only sheet label.",
+      "Don't set text dimmer than ink-3 on the plot.",
+      "Don't introduce colors outside this palette for grounds or fills."
+    ]
+  }
+}

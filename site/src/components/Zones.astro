@@ -1,0 +1,9 @@
+---
+// Drawing-frame zone markers: numbers along the top border (stopping short of the sheet tag), letters down the left edge.
+const top = ['1', '2', '3', '4', '5', '6'];
+const side = ['A', 'B', 'C', 'D'];
+---
+<div class="zones" aria-hidden="true">
+  {top.map((z, i) => <span class="t" style={`left:${(i + 0.5) * 12.5}%`}><b>{z}</b></span>)}
+  {side.map((z, i) => <span class="l" style={`top:${(i + 0.5) * 25}%`}>{z}</span>)}
+</div>

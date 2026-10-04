@@ -8,6 +8,8 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-ef9408?style=flat-square&labelColor=141414">
 </p>
 
+<p align="center"><b><a href="https://crosshairy.vercel.app">crosshairy.vercel.app</a></b> · <a href="https://github.com/corund207/CrosshairY/releases/latest">Download the latest release</a></p>
+
 **CrosshairY** is a native Windows crosshair overlay. It draws a pixel-perfect crosshair on top of any game, ships a full layered designer with animations, and imports crosshair codes from **Crosshair X**, **VALORANT** and **Counter-Strike 2**. It runs on the .NET Framework that already comes with Windows 10 and 11 — one small `.exe`, nothing to install.
 
 <p align="center">
