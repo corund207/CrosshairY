@@ -20,20 +20,20 @@ Install the Windows SDK's *Signing Tools for Desktop Apps* (for `signtool.exe`),
 
 ```powershell
 # certificate installed in your certificate store (hardware token / cloud HSM)
-$env:CROSSHAIRY_CERT_THUMBPRINT = "<sha1 thumbprint>"
+$env:RETICLY_CERT_THUMBPRINT = "<sha1 thumbprint>"
 
 # or a .pfx file
-$env:CROSSHAIRY_PFX = "C:\path\cert.pfx"
-$env:CROSSHAIRY_PFX_PASSWORD = "<password>"
+$env:RETICLY_PFX = "C:\path\cert.pfx"
+$env:RETICLY_PFX_PASSWORD = "<password>"
 
 # or Azure Trusted Signing
-$env:CROSSHAIRY_TRUSTED_SIGNING_DLIB = "C:\path\Azure.CodeSigning.Dlib.dll"
-$env:CROSSHAIRY_TRUSTED_SIGNING_JSON = "C:\path\metadata.json"
+$env:RETICLY_TRUSTED_SIGNING_DLIB = "C:\path\Azure.CodeSigning.Dlib.dll"
+$env:RETICLY_TRUSTED_SIGNING_JSON = "C:\path\metadata.json"
 
-.\build.ps1 -Out build\release\CrosshairY.exe -Sign
+.\build.ps1 -Out build\release\Reticly.exe -Sign
 ```
 
-The script signs with SHA-256, adds an RFC 3161 timestamp (override the server with `$env:CROSSHAIRY_TIMESTAMP_URL`) and verifies the signature.
+The script signs with SHA-256, adds an RFC 3161 timestamp (override the server with `$env:RETICLY_TIMESTAMP_URL`) and verifies the signature.
 
 Never commit certificates or passwords. Keep them in environment variables or CI secrets.
 

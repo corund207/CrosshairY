@@ -5,9 +5,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.UI.Controls
+namespace Reticly.UI.Controls
 {
     /// <summary>Edits a list of executable names (e.g. "cs2.exe") with add-from-running-apps and browse.</summary>
     public class ProcessListEditor : StackPanel

@@ -5,9 +5,9 @@ primary_target: "site/src/pages/index.astro"
 related_targets: []
 ---
 
-# Surface: CrosshairY website (site/)
+# Surface: Reticly website (site/)
 
-Mode: Persuade. Audience: friends the maintainer sends the link to (PC gamers, dark room, link from Discord). Action: download CrosshairY.exe from the latest GitHub release and run it past the unsigned warning. Proof: live recoil demo from the app's real spray data, real screenshots, the live community gallery, honest install and safety notes. Constraints: never mention any competitor; no invented users, reviews or endorsements; Astro static on Vercel at crosshairy.vercel.app.
+Mode: Persuade. Audience: friends the maintainer sends the link to (PC gamers, dark room, link from Discord). Action: download Reticly.exe from the latest GitHub release and run it past the unsigned warning. Proof: live recoil demo from the app's real spray data, real screenshots, the live community gallery, honest install and safety notes. Constraints: never mention any competitor; no invented users, reviews or endorsements; Astro static on Vercel at reticly.vercel.app.
 
 ## Direction contract
 

@@ -1,5 +1,5 @@
 ---
-name: CrosshairY
+name: Reticly
 description: A free crosshair overlay for Windows, presented as the crosshair's own engineering drawing set.
 colors:
   amber: "#f5a524"
@@ -119,7 +119,7 @@ components:
     size: "28px"
 ---
 
-# Design System: CrosshairY
+# Design System: Reticly
 
 ## Overview
 

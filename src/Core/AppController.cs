@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using CrosshairY.Input;
-using CrosshairY.Overlay;
+using Reticly.Input;
+using Reticly.Overlay;
 using Microsoft.Win32;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>Central coordinator: state, overlay, global input, profiles and game detection.</summary>
     public sealed class AppController
@@ -64,6 +64,8 @@ namespace CrosshairY.Core
         {
             State.Load();
             Recoil.LoadCustom();
+            // keep the startup entry pointing at this exe (and drop the pre-rename one)
+            if (State.Settings.LaunchOnStartup && !Program.SnapMode) SetLaunchOnStartup(true);
             Render.ImageCache.DiskCacheDir = Path.Combine(AppState.DataDir, "cache");
             CrosshairVisible = State.Settings.VisibleOnLaunch;
             // keep saved recoil crosshairs in sync with the current weapon defaults (e.g. fire-rate tweaks)
@@ -558,8 +560,9 @@ namespace CrosshairY.Core
                 using (var k = Registry.CurrentUser.OpenSubKey(RunKey, true))
                 {
                     if (k == null) return;
-                    if (enable) k.SetValue("CrosshairY", "\"" + Application.ExecutablePath + "\" --startup");
-                    else k.DeleteValue("CrosshairY", false);
+                    k.DeleteValue("CrosshairY", false);   // entry from before the rename
+                    if (enable) k.SetValue("Reticly", "\"" + Application.ExecutablePath + "\" --startup");
+                    else k.DeleteValue("Reticly", false);
                 }
             }
             catch { }

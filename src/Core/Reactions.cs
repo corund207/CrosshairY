@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>
     /// Hit marker / kill flash graphics. Built as ordinary layers for a progress value t (0 → 1) so the overlay can draw

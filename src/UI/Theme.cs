@@ -7,9 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.UI
+namespace Reticly.UI
 {
     /// <summary>Design tokens: neutral charcoal chrome, a single orange accent, Noto Sans type.</summary>
     public static class Theme

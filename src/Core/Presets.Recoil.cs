@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>
     /// The recoil-tracking collection. Every design has one or more tracker layers that follow the spray while Fire is

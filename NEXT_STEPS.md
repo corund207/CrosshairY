@@ -1,6 +1,6 @@
 # Next steps
 
-The plan for the next CrosshairY release (1.3). Each item has the design, where it lives in the code and what's left. ✅ = done, 🟡 = done in code but needs something outside it, ⬜ = not started.
+The plan for the next Reticly release (1.3). Each item has the design, where it lives in the code and what's left. ✅ = done, 🟡 = done in code but needs something outside it, ⬜ = not started.
 
 | # | Feature | Status |
 |---|---|---|
@@ -35,9 +35,9 @@ The plan for the next CrosshairY release (1.3). Each item has the design, where 
 
 **Goal:** people find out about new versions without checking GitHub.
 
-- On launch (at most once a day) query `https://api.github.com/repos/corund207/CrosshairY/releases/latest`. Compare `tag_name` with `Program.Version`.
-- If newer, show a toast/banner: **Update to x.y.z**. Clicking it shows the release notes, downloads `CrosshairY.exe` to `%TEMP%`, verifies the asset's SHA-256 against the `digest` GitHub publishes, then swaps the exe and restarts.
-- The swap works because a running exe can be renamed: rename `CrosshairY.exe` → `CrosshairY.old.exe`, move the new file in, start it with `--updated`, exit. The new process deletes `*.old.exe`.
+- On launch (at most once a day) query `https://api.github.com/repos/corund207/Reticly/releases/latest`. Compare `tag_name` with `Program.Version`.
+- If newer, show a toast/banner: **Update to x.y.z**. Clicking it shows the release notes, downloads `Reticly.exe` to `%TEMP%`, verifies the asset's SHA-256 against the `digest` GitHub publishes, then swaps the exe and restarts.
+- The swap works because a running exe can be renamed: rename `Reticly.exe` → `Reticly.old.exe`, move the new file in, start it with `--updated`, exit. The new process deletes `*.old.exe`.
 - Settings › General: **Check for updates automatically** (on by default) and a **Check now** button. Help shows the current version.
 - Code: `src/Core/Updater.cs`, `Settings.AutoUpdate`, `Settings.LastUpdateCheck`.
 
@@ -45,7 +45,7 @@ The plan for the next CrosshairY release (1.3). Each item has the design, where 
 
 **Goal:** no SmartScreen / Smart App Control block.
 
-- Code side: `build.ps1 -Sign` signs the exe with `signtool` using a certificate from the store (`$env:CROSSHAIRY_CERT_THUMBPRINT`) or a PFX (`$env:CROSSHAIRY_PFX` + `$env:CROSSHAIRY_PFX_PASSWORD`), timestamped via `http://timestamp.digicert.com`.
+- Code side: `build.ps1 -Sign` signs the exe with `signtool` using a certificate from the store (`$env:RETICLY_CERT_THUMBPRINT`) or a PFX (`$env:RETICLY_PFX` + `$env:RETICLY_PFX_PASSWORD`), timestamped via `http://timestamp.digicert.com`.
 - Needs a certificate, which costs money or an application. Options, cheapest first:
   1. **SignPath Foundation**: free code signing for open-source projects (apply with the repo).
   2. **Azure Trusted Signing**: ~$10/month, individual developers supported, instant SmartScreen reputation.
@@ -59,7 +59,7 @@ The plan for the next CrosshairY release (1.3). Each item has the design, where 
 - Dialog with a zoomable grid: one dot per bullet, connected in order. Drag a dot to move it; click empty space to add the next bullet; right-click to remove. Shift-drag moves every later bullet too.
 - Fields: name, game (free text, defaults to "Custom"), fire rate (RPM), accurate first shots. **Start from** copies any built-in pattern to edit.
 - **Test** plays the spray at the real fire rate.
-- Custom patterns are saved to `%APPDATA%\CrosshairY\patterns.json`. They appear in every weapon picker under their game, and are included in backups.
+- Custom patterns are saved to `%APPDATA%\Reticly\patterns.json`. They appear in every weapon picker under their game, and are included in backups.
 - Code: `Recoil.Custom`, `Recoil.SaveCustom`, `src/UI/Dialogs/PatternEditor.cs`. Opened from Designer › Recoil Pattern and Keybinds › Recoil loadout.
 
 ## 4. Per-weapon scale in the loadout
@@ -104,12 +104,12 @@ The plan for the next CrosshairY release (1.3). Each item has the design, where 
 
 ## 14. Backup export / import
 
-- Settings › Backup: **Export backup** writes one `.crosshairy` file (settings, profiles with keybinds and loadouts, library, custom patterns). **Import backup** restores it (replace everything) or merges the library and profiles.
+- Settings › Backup: **Export backup** writes one `.reticly` file (settings, profiles with keybinds and loadouts, library, custom patterns). **Import backup** restores it (replace everything) or merges the library and profiles.
 - Profiles page: export / import a single profile.
 
 ## 15. Tray menu
 
-- Show / hide crosshair, crosshairs (library, ✓ on the active one), weapon (loadout first, then the game's guns), profiles, open CrosshairY, check for updates, exit.
+- Show / hide crosshair, crosshairs (library, ✓ on the active one), weapon (loadout first, then the game's guns), profiles, open Reticly, check for updates, exit.
 
 ## 16. Localization
 

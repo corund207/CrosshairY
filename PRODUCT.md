@@ -16,7 +16,7 @@ A small circle of friends and people the maintainer (Jonah, GitHub `corund207`) 
 
 ## Product Purpose
 
-CrosshairY draws a custom crosshair over any game: a transparent, click-through, always-on-top overlay on the exact center pixel. It's free, open source (MIT) and made by one person. Success: a visitor downloads the exe, gets past the unsigned-app warning without worry, and has a crosshair on screen within a minute.
+Reticly draws a custom crosshair over any game: a transparent, click-through, always-on-top overlay on the exact center pixel. It's free, open source (MIT) and made by one person. Success: a visitor downloads the exe, gets past the unsigned-app warning without worry, and has a crosshair on screen within a minute.
 
 ## Positioning
 
@@ -24,7 +24,7 @@ A free, open-source crosshair overlay with recoil-tracking crosshairs: a tracker
 
 ## Operating Context
 
-- Download is a single `CrosshairY.exe` from GitHub Releases (latest: `https://github.com/corund207/CrosshairY/releases/latest`). No installer; needs Windows 10/11 (.NET Framework 4.8 is built in).
+- Download is a single `Reticly.exe` from GitHub Releases (latest: `https://github.com/corund207/Reticly/releases/latest`). No installer; needs Windows 10/11 (.NET Framework 4.8 is built in).
 - The exe isn't code-signed: SmartScreen shows "Windows protected your PC" → **More info › Run anyway**. PCs with Smart App Control on may block it outright; the alternative is building from source (`.\build.ps1`).
 - Works over borderless/windowed games and most "fullscreen" games; true exclusive fullscreen can't be drawn over by any overlay (Force Borderless helps).
 - From 1.3.0 the app updates itself from GitHub Releases.
@@ -36,14 +36,14 @@ A free, open-source crosshair overlay with recoil-tracking crosshairs: a tracker
 - Designer: layers (lines, dots, shapes, text, images, drawings), multi-stage fire/aim/autoplay animations, undo/redo, live preview.
 - Library: 100+ built-in designs including 46 recoil crosshairs; Saved, categories, favorites; randomizer; community gallery.
 - Recoil: 91 weapons (VALORANT 18, CS2 34, Rust 15, Apex 24); per-weapon accurate first shots; loadout keys with per-gun scale and crosshair; spray pattern editor for custom or corrected patterns. Patterns are approximations.
-- Imports VALORANT and CS2 crosshair codes, CrosshairY codes and JSON.
+- Imports VALORANT and CS2 crosshair codes, Reticly codes and JSON.
 - Hit marker / kill flash reactions (key-triggered; an overlay can't detect real hits).
 - Profiles per game with automatic switching; keyboard, mouse and XInput controller keybinds; tray menu; backup/restore; English, Spanish, German, French and Portuguese (BR).
 - Screenshots in `docs/images/` (banner, saved, browse, discover, designer, recoil, keybinds, loadout, settings, randomizer).
 
 ## Brand Commitments
 
-- Name **CrosshairY**, written with the final **Y** in the accent orange (`#F59E0B`-family amber, as in the app's logo). The app mark is a ring with four ticks and a center dot.
+- Name **Reticly**, written with the final **Y** in the accent orange (`#F59E0B`-family amber, as in the app's logo). The app mark is a ring with four ticks and a center dot.
 - The app's UI is dark, with amber accents and Noto Sans.
 - **Do not mention Crosshair X** (or any competitor) anywhere on the site.
 - Honest copy: say the patterns are approximate, say the exe is unsigned and how to run it, and never imply anti-cheat approval.

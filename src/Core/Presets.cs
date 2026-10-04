@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     public sealed class Preset
     {

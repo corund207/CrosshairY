@@ -10,7 +10,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
-$repo = if ($env:GITHUB_REPOSITORY) { $env:GITHUB_REPOSITORY } else { 'corund207/CrosshairY' }
+$repo = if ($env:GITHUB_REPOSITORY) { $env:GITHUB_REPOSITORY } else { 'corund207/Reticly' }
 $work = Join-Path $root 'build\gallery'
 New-Item -ItemType Directory -Force $work | Out-Null
 
@@ -93,7 +93,7 @@ if ($Mode -eq 'review') {
         $lines = @("### ❌ This submission needs a fix", "")
         foreach ($e in $r.errors) { $lines += "- $e" }
         $lines += ""
-        $lines += "Edit the issue to fix it and it will be checked again automatically. Tip: in CrosshairY, use **Discover › Community gallery › Share yours** to fill this in for you."
+        $lines += "Edit the issue to fix it and it will be checked again automatically. Tip: in Reticly, use **Discover › Community gallery › Share yours** to fill this in for you."
         Comment ($lines -join "`n")
         Labels -add @('gallery', 'needs-fix')
     }

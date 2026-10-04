@@ -4,10 +4,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Input;
+using Reticly.Core;
+using Reticly.Input;
 
-namespace CrosshairY.UI.Controls
+namespace Reticly.UI.Controls
 {
     /// <summary>Color swatch + hex text; opens an HSV popup picker.</summary>
     public class ColorButton : DarkControl

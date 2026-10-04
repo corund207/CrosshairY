@@ -9,11 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using CrosshairY.Core;
-using CrosshairY.Import;
-using CrosshairY.Render;
+using Reticly.Core;
+using Reticly.Import;
+using Reticly.Render;
 
-namespace CrosshairY { static class Program { public const string Version = "gallery-tool"; public static bool SnapMode; } }
+namespace Reticly { static class Program { public const string Version = "gallery-tool"; public static bool SnapMode; } }
 
 static class GalleryTool
 {
@@ -54,14 +54,14 @@ static class GalleryTool
         var warnings = new List<string>();
         var form = ParseForm(File.ReadAllText(bodyFile));
         string name = Get(form, "Name").Replace("\n", " ").Trim();
-        string code = Regex.Replace(Get(form, "CrosshairY code"), @"\s+", "");
+        string code = Regex.Replace(Get(form, "Reticly code"), @"\s+", "");
         string author = Get(form, "Credit as").Replace("\n", " ").Trim();
         string category = Get(form, "Category").Trim();
 
         if (name.Length == 0) errors.Add("The **Name** field is empty.");
         else if (name.Length > 40) errors.Add("The name is longer than 40 characters.");
         if (author.Length > 40) author = author.Substring(0, 40);
-        if (code.Length == 0) errors.Add("The **CrosshairY code** field is empty. In CrosshairY use Share › Share Code and paste it.");
+        if (code.Length == 0) errors.Add("The **Reticly code** field is empty. In Reticly use Share › Share Code and paste it.");
         else if (code.Length > 200000) errors.Add("The code is too large (over 200 KB).");
         var cat = Categories.FirstOrDefault(c => string.Equals(c, category, StringComparison.OrdinalIgnoreCase));
 
@@ -104,7 +104,7 @@ static class GalleryTool
             catch (Exception ex) { errors.Add("The design couldn't be drawn: " + ex.Message); }
         }
 
-        // re-export as a CrosshairY code so every gallery entry decodes offline
+        // re-export as a Reticly code so every gallery entry decodes offline
         string normalized = layers != null && errors.Count == 0 ? CodeImporter.ExportOwn(layers, name) : null;
         var result = J.O("ok", errors.Count == 0, "name", name, "author", author, "category", cat ?? "Classic", "code", normalized,
             "kind", kind, "layers", layers?.Count ?? 0, "types", string.Join(", ", types.Select(kv => kv.Value + "× " + kv.Key)),

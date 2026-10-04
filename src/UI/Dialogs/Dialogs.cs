@@ -6,12 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Import;
-using CrosshairY.Render;
-using CrosshairY.UI.Controls;
+using Reticly.Core;
+using Reticly.Import;
+using Reticly.Render;
+using Reticly.UI.Controls;
 
-namespace CrosshairY.UI.Dialogs
+namespace Reticly.UI.Dialogs
 {
     public class DarkDialog : Form
     {
@@ -119,7 +119,7 @@ namespace CrosshairY.UI.Dialogs
         }
     }
 
-    /// <summary>Paste a Crosshair X code/link, VALORANT code, CS2 code or CrosshairY code; preview, then save.</summary>
+    /// <summary>Paste a Crosshair X code/link, VALORANT code, CS2 code or Reticly code; preview, then save.</summary>
     public class ImportDialog : DarkDialog
     {
         readonly TextField codeBox;
@@ -133,7 +133,7 @@ namespace CrosshairY.UI.Dialogs
 
         public ImportDialog(string initialCode = null) : base("Import crosshair", 560)
         {
-            Content.Controls.Add(new WrapLabel("Paste any of these and press Import:\n•  Crosshair X share code or link (e.g. xe4lbu6zh8 or crosshairx.gg/s/xe4lbu6zh8)\n•  VALORANT crosshair code (0;P;c;5;…)\n•  CS2 / CS:GO crosshair code (CSGO-… or CS…)\n•  CrosshairY code (CXY1-…) or crosshair JSON", Theme.Small, Theme.TextDim));
+            Content.Controls.Add(new WrapLabel("Paste any of these and press Import:\n•  Crosshair X share code or link (e.g. xe4lbu6zh8 or crosshairx.gg/s/xe4lbu6zh8)\n•  VALORANT crosshair code (0;P;c;5;…)\n•  CS2 / CS:GO crosshair code (CSGO-… or CS…)\n•  Reticly code (CXY1-…) or crosshair JSON", Theme.Small, Theme.TextDim));
             codeBox = new TextField(initialCode ?? "", "Paste a code or link…");
             codeBox.Box.Font = Theme.Mono;
             importBtn = new FlatButton("Import", Glyph.Download, ButtonKind.Primary);
@@ -248,7 +248,7 @@ namespace CrosshairY.UI.Dialogs
         }
     }
 
-    /// <summary>Share/export: CrosshairY code, JSON, PNG.</summary>
+    /// <summary>Share/export: Reticly code, JSON, PNG.</summary>
     public class ShareDialog : DarkDialog
     {
         public ShareDialog(CrosshairEntry entry) : base("Choose a share method", 620)
@@ -263,7 +263,7 @@ namespace CrosshairY.UI.Dialogs
             codeRow.Layout += (s, e) => codeBox.SetBounds(0, 0, codeRow.Width, Theme.S(38));
 
             var tiles = new Columns(
-                new ShareTile(Glyph.Code, "Share Code", "Copies a CrosshairY code that contains the whole design. Anyone can paste it into Import — it works offline and never expires.", status, () =>
+                new ShareTile(Glyph.Code, "Share Code", "Copies a Reticly code that contains the whole design. Anyone can paste it into Import — it works offline and never expires.", status, () =>
                 {
                     SafeClipboard(code);
                     codeRow.Visible = true;

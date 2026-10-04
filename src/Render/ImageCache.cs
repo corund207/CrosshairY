@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
-namespace CrosshairY.Render
+namespace Reticly.Render
 {
     /// <summary>A decoded image, possibly animated (GIF).</summary>
     public sealed class CachedImage
@@ -114,7 +114,7 @@ namespace CrosshairY.Render
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
             using (var wc = new WebClient())
             {
-                wc.Headers[HttpRequestHeader.UserAgent] = "CrosshairY/1.0";
+                wc.Headers[HttpRequestHeader.UserAgent] = "Reticly/1.0";
                 return wc.DownloadData(url);
             }
         }

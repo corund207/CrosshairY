@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Input;
-using CrosshairY.UI.Controls;
-using CrosshairY.UI.Dialogs;
+using Reticly.Core;
+using Reticly.Input;
+using Reticly.UI.Controls;
+using Reticly.UI.Dialogs;
 
-namespace CrosshairY.UI.Pages
+namespace Reticly.UI.Pages
 {
     /// <summary>"Configure Keybinds": action keybinds and crosshair shortcuts, each with keyboard/mouse and controller columns.</summary>
     public sealed class KeybindsPage : Page

@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.UI;
+using Reticly.Core;
+using Reticly.UI;
 
-[assembly: System.Reflection.AssemblyTitle("CrosshairY")]
-[assembly: System.Reflection.AssemblyProduct("CrosshairY")]
+[assembly: System.Reflection.AssemblyTitle("Reticly")]
+[assembly: System.Reflection.AssemblyProduct("Reticly")]
 [assembly: System.Reflection.AssemblyDescription("Custom crosshair overlay for any PC game")]
 [assembly: System.Reflection.AssemblyVersion("1.2.0.0")]
 [assembly: System.Reflection.AssemblyFileVersion("1.2.0.0")]
 
-namespace CrosshairY
+namespace Reticly
 {
     public static class Program
     {
@@ -29,10 +29,10 @@ namespace CrosshairY
             try { if (!Native.SetProcessDpiAwarenessContext(new IntPtr(-4))) Native.SetProcessDPIAware(); }
             catch { try { Native.SetProcessDPIAware(); } catch { } }
 
-            ShowMessage = Native.RegisterWindowMessage("CrosshairY.ShowWindow.7f3a");
+            ShowMessage = Native.RegisterWindowMessage("Reticly.ShowWindow.7f3a");
             bool snap = args.Length >= 3 && args[0] == "--snap";   // developer aid: render pages to PNG files
             SnapMode = snap;
-            mutex = new Mutex(true, snap ? "CrosshairY.Snap" : "CrosshairY.SingleInstance.7f3a", out bool first);
+            mutex = new Mutex(true, snap ? "Reticly.Snap" : "Reticly.SingleInstance.7f3a", out bool first);
             if (!first && args.Contains("--updated"))
             {
                 // started by the updater: wait for the old version to finish exiting
@@ -175,7 +175,7 @@ namespace CrosshairY
             }
             catch { }
             if (Interlocked.Increment(ref errorCount) <= 3)
-                MessageBox.Show("Something went wrong:\n\n" + ex.Message + "\n\nDetails were written to error.log in the CrosshairY data folder.", "CrosshairY", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Something went wrong:\n\n" + ex.Message + "\n\nDetails were written to error.log in the Reticly data folder.", "Reticly", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

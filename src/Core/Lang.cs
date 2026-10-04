@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>
     /// UI translations. Strings are looked up by their English text; anything without a translation stays English, so a

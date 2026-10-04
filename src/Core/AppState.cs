@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     public sealed class CrosshairBind
     {
@@ -241,8 +241,38 @@ namespace CrosshairY.Core
     /// <summary>All persisted data plus change notifications.</summary>
     public sealed class AppState
     {
-        public static readonly string DataDir = Environment.GetEnvironmentVariable("CROSSHAIRY_DATA") is string d && d.Length > 0
-            ? d : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CrosshairY");
+        public static readonly string DataDir = ResolveDataDir();
+
+        /// <summary>
+        /// %APPDATA%\Reticly (RETICLY_DATA overrides). The app used to be called CrosshairY: an existing
+        /// %APPDATA%\CrosshairY folder is moved over on first run so crosshairs, profiles and settings carry across.
+        /// </summary>
+        static string ResolveDataDir()
+        {
+            string env = Environment.GetEnvironmentVariable("RETICLY_DATA") ?? Environment.GetEnvironmentVariable("CROSSHAIRY_DATA");
+            if (!string.IsNullOrEmpty(env)) return env;
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string dir = Path.Combine(appData, "Reticly"), legacy = Path.Combine(appData, "CrosshairY");
+            try
+            {
+                if (!Directory.Exists(dir) && Directory.Exists(legacy))
+                {
+                    try { Directory.Move(legacy, dir); }
+                    catch
+                    {
+                        // folder in use (e.g. the old version is still running): copy instead
+                        foreach (var f in Directory.GetFiles(legacy, "*", SearchOption.AllDirectories))
+                        {
+                            var target = Path.Combine(dir, f.Substring(legacy.Length).TrimStart('\\'));
+                            Directory.CreateDirectory(Path.GetDirectoryName(target));
+                            File.Copy(f, target, true);
+                        }
+                    }
+                }
+            }
+            catch { }
+            return dir;
+        }
         static string SettingsFile => Path.Combine(DataDir, "settings.json");
         static string LibraryFile => Path.Combine(DataDir, "library.json");
         static string ProfilesFile => Path.Combine(DataDir, "profiles.json");
@@ -395,7 +425,7 @@ namespace CrosshairY.Core
 
         /// <summary>Full backup: settings, profiles (keybinds, loadouts), library, categories and custom recoil patterns.</summary>
         public string ExportAll() => Json.Serialize(J.O(
-            "app", "CrosshairY", "version", 2, "appVersion", Program.Version, "exported", DateTime.UtcNow.ToString("o"),
+            "app", "Reticly", "version", 2, "appVersion", Program.Version, "exported", DateTime.UtcNow.ToString("o"),
             "settings", Settings.ToJson(),
             "folders", Folders.Cast<object>().ToList(),
             "crosshairs", Library.Select(e => (object)e.ToJson()).ToList(),
@@ -408,7 +438,7 @@ namespace CrosshairY.Core
             var ids = new HashSet<string> { p.CrosshairId, p.AimCrosshairId };
             foreach (var b in p.CrosshairBinds) ids.Add(b.CrosshairId);
             foreach (var s in p.RecoilSlots) ids.Add(s.CrosshairId);
-            return Json.Serialize(J.O("app", "CrosshairY", "kind", "profile", "version", 2,
+            return Json.Serialize(J.O("app", "Reticly", "kind", "profile", "version", 2,
                 "profiles", J.A(p.ToJson()),
                 "crosshairs", Library.Where(e => ids.Contains(e.Id)).Select(e => (object)e.ToJson()).ToList()), true);
         }
@@ -417,7 +447,7 @@ namespace CrosshairY.Core
         public void RestoreAll(string json)
         {
             var root = Json.Parse(json);
-            if (J.List(root, "crosshairs") == null && J.List(root, "profiles") == null) throw new InvalidDataException("This file isn't a CrosshairY backup.");
+            if (J.List(root, "crosshairs") == null && J.List(root, "profiles") == null) throw new InvalidDataException("This file isn't a Reticly backup.");
             Library = (J.List(root, "crosshairs") ?? new List<object>()).Select(CrosshairEntry.FromJson).ToList();
             Folders = J.StrList(root, "folders");
             Profiles = (J.List(root, "profiles") ?? new List<object>()).Select(Profile.FromJson).ToList();

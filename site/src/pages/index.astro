@@ -2,8 +2,8 @@
 import '../styles/site.css';
 import Zones from '../components/Zones.astro';
 
-const REPO = 'corund207/CrosshairY';
-const DOWNLOAD = `https://github.com/${REPO}/releases/latest/download/CrosshairY.exe`;
+const REPO = 'corund207/Reticly';
+let DOWNLOAD = `https://github.com/${REPO}/releases/latest`;   // replaced by the real asset link below
 const GH = `https://github.com/${REPO}`;
 
 // Release data is baked in at build time and refreshed in the browser (see site.js).
@@ -11,7 +11,7 @@ type Rev = { version: string; date: string; summary: string; url: string };
 let releases: any[] = [];
 try {
   const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=12`, {
-    headers: { 'User-Agent': 'crosshairy-site', Accept: 'application/vnd.github+json' },
+    headers: { 'User-Agent': 'reticly-site', Accept: 'application/vnd.github+json' },
   });
   if (res.ok) releases = await res.json();
 } catch {}
@@ -25,7 +25,8 @@ function summarize(body: string): string {
 }
 
 const latest = releases[0];
-const asset = latest?.assets?.find((a: any) => a.name === 'CrosshairY.exe');
+const asset = latest?.assets?.find((a: any) => a.name === 'Reticly.exe' || a.name === 'CrosshairY.exe');
+if (asset?.browser_download_url) DOWNLOAD = asset.browser_download_url;
 const rel = {
   version: latest ? String(latest.tag_name).replace(/^v/, '') : '1.2.0',
   date: latest ? String(latest.published_at).slice(0, 10) : '2026-10-03',
@@ -63,13 +64,13 @@ const sheets = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CrosshairY: free crosshair overlay for Windows</title>
-    <meta name="description" content="CrosshairY draws a custom crosshair over any game, including recoil crosshairs that follow your gun's spray. Free and open source for Windows 10 and 11." />
+    <title>Reticly: free crosshair overlay for Windows</title>
+    <meta name="description" content="Reticly draws a custom crosshair over any game, including recoil crosshairs that follow your gun's spray. Free and open source for Windows 10 and 11." />
     <meta name="theme-color" content="#0e1012" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta property="og:title" content="CrosshairY: free crosshair overlay for Windows" />
+    <meta property="og:title" content="Reticly: free crosshair overlay for Windows" />
     <meta property="og:description" content="Any crosshair, on the exact center pixel of every game. Recoil crosshairs that follow your gun's spray. Free and open source." />
-    <meta property="og:image" content="https://crosshairy.vercel.app/shots/recoil.png" />
+    <meta property="og:image" content="https://reticly.vercel.app/shots/recoil.png" />
     <meta property="og:type" content="website" />
     <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
@@ -78,9 +79,9 @@ const sheets = [
 
     <header class="strip">
       <div class="strip-inner">
-        <a class="mark" href="#s01" aria-label="CrosshairY home">
+        <a class="mark" href="#s01" aria-label="Reticly home">
           <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="none" stroke="#E9E6DF" stroke-width="2.4"/><g fill="#0E1012"><rect x="14" y="3" width="4" height="8"/><rect x="14" y="21" width="4" height="8"/></g><g fill="#F5A524"><rect x="15" y="5" width="2" height="6"/><rect x="15" y="21" width="2" height="6"/><rect x="5" y="15" width="6" height="2"/><rect x="21" y="15" width="6" height="2"/><rect x="14.5" y="14.5" width="3" height="3"/></g></svg>
-          <span>Crosshair<span class="y">Y</span></span>
+          <span>Reticl<span class="y">y</span></span>
         </a>
         <nav class="tabs" aria-label="Sheets">
           {sheets.map(([n, t, id]) => (
@@ -101,7 +102,7 @@ const sheets = [
         <div class="sheet-tag" aria-hidden="true"><span>Sheet <strong>01</strong> of 06</span><span>Scale 12:1</span></div>
         <div class="sheet-body ga">
           <div class="drawing">
-            <svg viewBox="0 0 900 640" role="img" aria-label="Engineering drawing of a CrosshairY plus crosshair at 12 times scale: arm length 5 pixels, gap 6, thickness 2, total span 22, with five numbered callouts.">
+            <svg viewBox="0 0 900 640" role="img" aria-label="Engineering drawing of a Reticly plus crosshair at 12 times scale: arm length 5 pixels, gap 6, thickness 2, total span 22, with five numbered callouts.">
               <defs>
                 <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 10 5 0 9z" fill="#45C4D6" /></marker>
               </defs>
@@ -184,7 +185,7 @@ const sheets = [
           <div class="ga-side">
             <div class="ga-title">
               <h1 id="h01">Your crosshair, drawn to spec.</h1>
-              <p class="lede">CrosshairY is a free crosshair overlay for Windows. Put any crosshair on the <strong>exact center pixel</strong> of every game, including <strong>recoil crosshairs that follow your gun's spray</strong> while you fire.</p>
+              <p class="lede">Reticly is a free crosshair overlay for Windows. Put any crosshair on the <strong>exact center pixel</strong> of every game, including <strong>recoil crosshairs that follow your gun's spray</strong> while you fire.</p>
             </div>
 
             <ol class="notes" aria-label="Callouts">
@@ -196,7 +197,7 @@ const sheets = [
             </ol>
 
             <div class="tb" aria-label="Download details">
-              <div class="wide title"><span class="k">Title</span><span class="v">CrosshairY · crosshair overlay</span></div>
+              <div class="wide title"><span class="k">Title</span><span class="v">Reticly · crosshair overlay</span></div>
               <div class="half"><span class="k">Drawn by</span><span class="v">Jonah</span></div>
               <div class="half"><span class="k">License</span><span class="v">MIT · open source</span></div>
               <div><span class="k">Rev</span><span class="v" data-rel="version">{rel.version}</span></div>
@@ -206,7 +207,7 @@ const sheets = [
               <div class="wide sha"><span class="k">SHA-256</span><span class="v" data-rel="sha">{rel.sha}</span></div>
               <div class="go">
                 <a href={DOWNLOAD} data-dl>
-                  <span><span class="big">Download CrosshairY.exe</span><span class="small">Free · one file · no installer · no account</span></span>
+                  <span><span class="big">Download Reticly.exe</span><span class="small">Free · one file · no installer · no account</span></span>
                   <svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 4v19M9 15l8 8 8-8M5 30h24" fill="none" stroke="currentColor" stroke-width="2.6" /></svg>
                 </a>
               </div>
@@ -254,11 +255,11 @@ const sheets = [
         <div class="sheet-body">
           <div class="details-head">
             <h2 id="h03">The real app, up close.</h2>
-            <p>Screenshots of CrosshairY as it is today: a dark Windows app with a Designer, a library, keybinds and a recoil loadout.</p>
+            <p>Screenshots of Reticly as it is today: a dark Windows app with a Designer, a library, keybinds and a recoil loadout.</p>
           </div>
           <div class="details">
             <figure class="view a">
-              <div class="frame"><img src="/shots/designer.png" width="1320" height="840" alt="CrosshairY Designer with layers, a pixel canvas and the inspector" loading="lazy" /></div>
+              <div class="frame"><img src="/shots/designer.png" width="1320" height="840" alt="Reticly Designer with layers, a pixel canvas and the inspector" loading="lazy" /></div>
               <figcaption><span class="letter" aria-hidden="true">A</span><span class="cap"><h3>Designer</h3><p>Layers, shapes, text and images on a zoomable pixel canvas, with fire and aim animations and live preview on screen.</p></span></figcaption>
             </figure>
             <figure class="view b">
@@ -323,7 +324,7 @@ const sheets = [
             <h2 id="h05">Shared crosshairs.</h2>
             <p>The community gallery starts with Jonah's own designs; approved submissions from anyone land here too. In the app they're under <strong>Discover › Community gallery</strong>, one click to use.</p>
             <ol class="steps">
-              <li>Make a crosshair you like in CrosshairY.</li>
+              <li>Make a crosshair you like in Reticly.</li>
               <li>Open Discover › Community gallery › Share yours.</li>
               <li>GitHub opens with it filled in. Submit, and once it's approved it's here for everyone.</li>
             </ol>
@@ -350,15 +351,15 @@ const sheets = [
         <div class="sheet-body inst">
           <div class="inst-head">
             <h2 id="h06">Installing, honestly.</h2>
-            <p>CrosshairY is one person's free project. Here's exactly what to expect.</p>
+            <p>Reticly is one person's free project. Here's exactly what to expect.</p>
           </div>
           <ol class="gen-notes">
-            <li><div><h3>Download and run</h3><p>One file, <code>CrosshairY.exe</code>. Put it anywhere and double-click. Windows 10 or 11; nothing else to install.</p></div></li>
+            <li><div><h3>Download and run</h3><p>One file, <code>Reticly.exe</code>. Put it anywhere and double-click. Windows 10 or 11; nothing else to install.</p></div></li>
             <li><div><h3>“Windows protected your PC”</h3><p>The exe isn't code-signed (signing costs money every year), so SmartScreen warns about it like any new app. Click <strong>More info</strong>, then <strong>Run anyway</strong>. You only do this once.</p></div></li>
             <li><div><h3>If it's blocked outright</h3><p>PCs with Smart App Control on block unsigned apps with no Run anyway button. You can build it yourself from the source instead: clone the repo and run <code>.\build.ps1</code>. No Visual Studio needed.</p></div></li>
             <li><div><h3>What it touches</h3><p>It's a click-through window drawn on top of the game. It never reads or changes game files or memory, has no account, and only goes online to check for updates and load the gallery.</p></div></li>
-            <li><div><h3>Check the file</h3><p>Every release lists its SHA-256 (it's in the title block on sheet 01). In PowerShell, <code>Get-FileHash .\CrosshairY.exe</code> should match.</p></div></li>
-            <li><div><h3>Updates</h3><p>From version 1.3 on, CrosshairY updates itself from GitHub. Your crosshairs and settings carry over.</p></div></li>
+            <li><div><h3>Check the file</h3><p>Every release lists its SHA-256 (it's in the title block on sheet 01). In PowerShell, <code>Get-FileHash .\Reticly.exe</code> should match.</p></div></li>
+            <li><div><h3>Updates</h3><p>From version 1.3 on, Reticly updates itself from GitHub. Your crosshairs and settings carry over.</p></div></li>
           </ol>
           <div>
             <table class="revs" id="revs">
@@ -374,14 +375,14 @@ const sheets = [
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 22 20H2z" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M12 9.5v5M12 17v1.2" stroke="currentColor" stroke-width="1.8" /></svg>
               <p>Some games' rules don't allow crosshair overlays in competitive play. Check the rules of the game you play before using one there.</p>
             </div>
-            <p style="margin-top:20px"><a class="btn btn-amber" href={DOWNLOAD} data-dl>Download CrosshairY.exe</a></p>
+            <p style="margin-top:20px"><a class="btn btn-amber" href={DOWNLOAD} data-dl>Download Reticly.exe</a></p>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="foot">
-      <span>CrosshairY is made by Jonah: free and open source under the MIT license. Not affiliated with any game or publisher; game names belong to their owners.</span>
+      <span>Reticly is made by Jonah: free and open source under the MIT license. Not affiliated with any game or publisher; game names belong to their owners.</span>
       <span><a href={GH}>GitHub</a> · <a href={`${GH}/releases`}>All releases</a> · <a href={`${GH}/blob/main/LICENSE`}>License</a></span>
     </footer>
 

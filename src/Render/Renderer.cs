@@ -5,9 +5,9 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Linq;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.Render
+namespace Reticly.Render
 {
     public sealed class RenderResult : IDisposable
     {

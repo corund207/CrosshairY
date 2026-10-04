@@ -4,10 +4,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.UI.Controls;
+using Reticly.Core;
+using Reticly.UI.Controls;
 
-namespace CrosshairY.UI.Dialogs
+namespace Reticly.UI.Dialogs
 {
     /// <summary>
     /// Spray pattern editor: one dot per bullet (pixels at 1080p, up = negative Y). Drag to move (Shift moves every later

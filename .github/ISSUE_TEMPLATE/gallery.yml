@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for sharing! CrosshairY fills in the name and code when you use **Discover › Community gallery › Share yours**.
+        Thanks for sharing! Reticly fills in the name and code when you use **Discover › Community gallery › Share yours**.
         Accepted designs are added to `gallery/gallery.json` and show up in the app for everyone.
   - type: input
     id: name
@@ -18,7 +18,7 @@ body:
   - type: textarea
     id: code
     attributes:
-      label: CrosshairY code
+      label: Reticly code
       description: The share code (starts with CXY). Use Share › Share Code in the app if it isn't filled in.
       render: text
     validations:

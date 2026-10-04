@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>A saved crosshair: metadata plus the Crosshair X compatible layer array.</summary>
     public sealed class CrosshairEntry

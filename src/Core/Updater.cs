@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     public sealed class UpdateInfo
     {
@@ -16,12 +16,12 @@ namespace CrosshairY.Core
     }
 
     /// <summary>
-    /// Checks GitHub Releases for a newer CrosshairY, downloads the exe, verifies its SHA-256 against the digest GitHub
+    /// Checks GitHub Releases for a newer Reticly, downloads the exe, verifies its SHA-256 against the digest GitHub
     /// publishes, swaps it in (a running exe can be renamed) and restarts.
     /// </summary>
     public static class Updater
     {
-        public const string Repo = "corund207/CrosshairY";
+        public const string Repo = "corund207/Reticly";
         const string LatestApi = "https://api.github.com/repos/" + Repo + "/releases/latest";
         public const string ReleasesPage = "https://github.com/" + Repo + "/releases";
 
@@ -33,7 +33,7 @@ namespace CrosshairY.Core
         static WebClient Client()
         {
             var wc = new WebClient();
-            wc.Headers[HttpRequestHeader.UserAgent] = "CrosshairY/" + Program.Version;
+            wc.Headers[HttpRequestHeader.UserAgent] = "Reticly/" + Program.Version;
             wc.Headers[HttpRequestHeader.Accept] = "application/vnd.github+json";
             return wc;
         }
@@ -46,7 +46,7 @@ namespace CrosshairY.Core
             var root = Json.Parse(json);
             string tag = (J.Str(root, "tag_name") ?? "").TrimStart('v', 'V');
             var asset = (J.List(root, "assets") ?? new System.Collections.Generic.List<object>())
-                .FirstOrDefault(a => string.Equals(J.Str(a, "name"), "CrosshairY.exe", StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(a => string.Equals(J.Str(a, "name"), "Reticly.exe", StringComparison.OrdinalIgnoreCase) || string.Equals(J.Str(a, "name"), "CrosshairY.exe", StringComparison.OrdinalIgnoreCase));   // releases before the rename used the old name
             if (!IsNewer(tag, Program.Version) || asset == null) return null;
             string digest = J.Str(asset, "digest") ?? "";
             return new UpdateInfo
@@ -78,7 +78,7 @@ namespace CrosshairY.Core
         /// <summary>Downloads the new exe to %TEMP% and verifies it. Returns the file path.</summary>
         public static Task<string> DownloadAsync(UpdateInfo u, Action<double> progress) => Task.Run(() =>
         {
-            string path = Path.Combine(Path.GetTempPath(), "CrosshairY-" + u.Version + ".exe");
+            string path = Path.Combine(Path.GetTempPath(), "Reticly-" + u.Version + ".exe");
             var done = new System.Threading.ManualResetEventSlim();
             Exception error = null;
             using (var wc = Client())

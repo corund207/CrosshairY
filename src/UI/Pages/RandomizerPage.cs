@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.UI.Controls;
+using Reticly.Core;
+using Reticly.UI.Controls;
 
-namespace CrosshairY.UI.Pages
+namespace Reticly.UI.Pages
 {
     /// <summary>Randomizer: spin through random and hand-picked crosshairs, optionally applying each spin live.</summary>
     public sealed class RandomizerPage : Page
@@ -141,11 +141,11 @@ namespace CrosshairY.UI.Pages
             Topic(Glyph.Monitor, "My crosshair doesn't show in a game",
                 "Overlays can't draw over true exclusive fullscreen. Switch the game to Borderless or Windowed Fullscreen, or use Settings › Display › Force Borderless Fullscreen. Many DX9/DX12 games in “fullscreen” still work thanks to Windows fullscreen optimizations; try Fullscreen Assist Mode if the crosshair disappears when the game takes focus.");
             Topic(Glyph.Keyboard, "Keybinds don't work in a game",
-                "If a game runs as administrator, Windows won't let normal apps see its keyboard input. Run CrosshairY as administrator too. Single-key binds also work while Ctrl/Shift/Alt are held.");
+                "If a game runs as administrator, Windows won't let normal apps see its keyboard input. Run Reticly as administrator too. Single-key binds also work while Ctrl/Shift/Alt are held.");
             Topic(Glyph.Download, "Importing crosshair codes",
-                "Press Import (Ctrl+I) and paste: a Crosshair X share code or link (e.g. xe4lbu6zh8 or crosshairx.gg/s/xe4lbu6zh8), a VALORANT profile code (0;P;…), a CS2/CS:GO code (CSGO-… or CS…), a CrosshairY code (CXY1-…) or crosshair JSON. Crosshair X codes are downloaded from the same public share service crosshairx.gg uses.");
+                "Press Import (Ctrl+I) and paste: a Crosshair X share code or link (e.g. xe4lbu6zh8 or crosshairx.gg/s/xe4lbu6zh8), a VALORANT profile code (0;P;…), a CS2/CS:GO code (CSGO-… or CS…), a Reticly code (CXY1-…) or crosshair JSON. Crosshair X codes are downloaded from the same public share service crosshairx.gg uses.");
             Topic(Glyph.Recoil, "Recoil tracking crosshairs",
-                "Recoil crosshairs are timed animations: while you hold Fire, a layer walks along a weapon's spray pattern and snaps back when you let go. Browse › Recoil Tracking has ready-made ones, and the Designer's Animate tab can apply a pattern to any layer. Patterns are approximate; tune the scale for your resolution and FOV. CrosshairY never reads game memory.");
+                "Recoil crosshairs are timed animations: while you hold Fire, a layer walks along a weapon's spray pattern and snaps back when you let go. Browse › Recoil Tracking has ready-made ones, and the Designer's Animate tab can apply a pattern to any layer. Patterns are approximate; tune the scale for your resolution and FOV. Reticly never reads game memory.");
             Topic(Glyph.Target, "Hit markers",
                 "An overlay can't see what happens inside a game, so hit markers and kill flashes play when you press their keys (Keybinds page) or on every shot (Settings › Hit Markers).");
             Topic(Glyph.Edit, "Custom spray patterns",
@@ -153,7 +153,7 @@ namespace CrosshairY.UI.Pages
             Topic(Glyph.Crosshair, "Centering",
                 "The crosshair is drawn on the exact center pixel of the selected monitor in physical pixels. If a game's own center differs by a pixel, nudge it in Settings › Position & Size or set Position Keybinds.");
             Topic(Glyph.Info, "About",
-                "CrosshairY " + Program.Version + " — a native Windows crosshair overlay. It renders Crosshair X designs pixel-for-pixel and is an independent project, not affiliated with CenterPoint Gaming. Noto Sans is used under the SIL Open Font License.");
+                "Reticly " + Program.Version + " — a native Windows crosshair overlay. It renders Crosshair X designs pixel-for-pixel and is an independent project, not affiliated with CenterPoint Gaming. Noto Sans is used under the SIL Open Font License.");
         }
 
         void Topic(string glyph, string title, string body)

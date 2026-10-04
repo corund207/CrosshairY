@@ -59,9 +59,9 @@ static class Banner
             {
                 var fmt = StringFormat.GenericTypographic;
                 float x = 340, y = 92;
-                g.DrawString("Crosshair", f, tb, x, y, fmt);
-                float wWord = g.MeasureString("Crosshair", f, 2000, fmt).Width;
-                g.DrawString("Y", f, ob, x + wWord, y, fmt);
+                g.DrawString("Reticl", f, tb, x, y, fmt);
+                float wWord = g.MeasureString("Reticl", f, 2000, fmt).Width;
+                g.DrawString("y", f, ob, x + wWord, y, fmt);
             }
             using (var f = new Font(regular, 28, FontStyle.Regular, GraphicsUnit.Pixel))
             using (var b = new SolidBrush(Color.FromArgb(0xA3, 0xA3, 0xA3)))

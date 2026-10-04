@@ -6,12 +6,12 @@ using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Render;
-using CrosshairY.UI.Controls;
-using CrosshairY.UI.Dialogs;
+using Reticly.Core;
+using Reticly.Render;
+using Reticly.UI.Controls;
+using Reticly.UI.Dialogs;
 
-namespace CrosshairY.UI.Pages
+namespace Reticly.UI.Pages
 {
     /// <summary>
     /// Designer: toolbar (name, File, Share, Save, undo/redo), canvas with floating Layers panel and tool dock,

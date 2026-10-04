@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.Render
+namespace Reticly.Render
 {
     /// <summary>
     /// Plays Crosshair X firing/aim/autoplay animations. Each layer's firingOptions (plus optional stages and

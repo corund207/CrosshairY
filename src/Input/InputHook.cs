@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.Input
+namespace Reticly.Input
 {
     public struct InputEvent
     {

@@ -6,10 +6,10 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Render;
+using Reticly.Core;
+using Reticly.Render;
 
-namespace CrosshairY.UI.Controls
+namespace Reticly.UI.Controls
 {
     public static class Thumbnails
     {

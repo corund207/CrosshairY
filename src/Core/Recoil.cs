@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>A spray pattern: cumulative per-shot offsets (pixels at 1080p, negative Y = up) and fire rate.</summary>
     public sealed class RecoilPattern

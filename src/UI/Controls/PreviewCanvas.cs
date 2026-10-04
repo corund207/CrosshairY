@@ -4,10 +4,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Render;
+using Reticly.Core;
+using Reticly.Render;
 
-namespace CrosshairY.UI.Controls
+namespace Reticly.UI.Controls
 {
     /// <summary>
     /// Designer canvas: pixel-exact zoomable preview with pan, pixel grid, layer selection/dragging and

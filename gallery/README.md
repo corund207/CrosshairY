@@ -1,6 +1,6 @@
 # Community gallery
 
-`gallery.json` is what CrosshairY shows in **Discover › Community gallery**. The app downloads it from this repo (`raw.githubusercontent.com`) and keeps a copy for offline use. `previews/` holds a preview image of each published design.
+`gallery.json` is what Reticly shows in **Discover › Community gallery**. The app downloads it from this repo (`raw.githubusercontent.com`) and keeps a copy for offline use. `previews/` holds a preview image of each published design.
 
 ## How submissions work (automated)
 
@@ -13,7 +13,7 @@
 
 Not approving? Just close the issue. Duplicates of an existing design are detected and closed automatically.
 
-Any code CrosshairY can import is accepted (CrosshairY, Crosshair X, VALORANT, CS2). It's stored as a CrosshairY code so the gallery works offline. Image layers must be embedded, and the review comment flags them so you look at the preview before approving.
+Any code Reticly can import is accepted (Reticly, Crosshair X, VALORANT, CS2). It's stored as a Reticly code so the gallery works offline. Image layers must be embedded, and the review comment flags them so you look at the preview before approving.
 
 ## By hand
 

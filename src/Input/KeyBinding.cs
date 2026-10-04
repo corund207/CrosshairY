@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace CrosshairY.Input
+namespace Reticly.Input
 {
     [Flags]
     public enum Mods { None = 0, Ctrl = 1, Shift = 2, Alt = 4, Win = 8 }

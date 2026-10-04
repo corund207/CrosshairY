@@ -3,9 +3,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.UI
+namespace Reticly.UI
 {
     /// <summary>
     /// First-run tour: coach marks over the real window. Each step takes a snapshot of the form, dims it, cuts out the

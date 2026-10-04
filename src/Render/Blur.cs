@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace CrosshairY.Render
+namespace Reticly.Render
 {
     /// <summary>Gaussian blur approximation (three box passes) for premultiplied ARGB bitmaps, matching feGaussianBlur stdDeviation.</summary>
     public static class Blur

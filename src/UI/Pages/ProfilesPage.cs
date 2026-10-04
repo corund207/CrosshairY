@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.UI.Controls;
-using CrosshairY.UI.Dialogs;
+using Reticly.Core;
+using Reticly.UI.Controls;
+using Reticly.UI.Dialogs;
 
-namespace CrosshairY.UI.Pages
+namespace Reticly.UI.Pages
 {
     public sealed class ProfilesPage : Page
     {
@@ -40,7 +40,7 @@ namespace CrosshairY.UI.Pages
             var importBtn = new FlatButton(L.T("Import profile…"), Glyph.Download, ButtonKind.Ghost);
             importBtn.Click += (s, e) =>
             {
-                using (var d = new OpenFileDialog { Filter = L.T("CrosshairY profile or backup") + "|*.crosshairy;*.json|" + L.T("All files") + "|*.*" })
+                using (var d = new OpenFileDialog { Filter = L.T("Reticly profile or backup") + "|*.reticly;*.crosshairy;*.json|" + L.T("All files") + "|*.*" })
                 {
                     if (d.ShowDialog(Main) != DialogResult.OK) return;
                     try
@@ -143,7 +143,7 @@ namespace CrosshairY.UI.Pages
             var export = new FlatButton(L.T("Export"), Glyph.Upload);
             export.Click += (s, e) =>
             {
-                using (var d = new SaveFileDialog { Filter = L.T("CrosshairY profile") + "|*.crosshairy;*.json", FileName = ShareDialog.MakeSafe(p.Name) + ".crosshairy" })
+                using (var d = new SaveFileDialog { Filter = L.T("Reticly profile") + "|*.reticly;*.json", FileName = ShareDialog.MakeSafe(p.Name) + ".reticly" })
                     if (d.ShowDialog(Main) == DialogResult.OK)
                     {
                         try { System.IO.File.WriteAllText(d.FileName, App.State.ExportProfile(p)); Main.ShowToast(L.T("Profile exported"), Glyph.Upload); }
@@ -180,7 +180,7 @@ namespace CrosshairY.UI.Pages
             xh.Body.Controls.Add(xhRow);
             st.Controls.Add(xh);
 
-            var apps = new Card("Linked apps", "When one of these is the focused window, CrosshairY switches to this profile");
+            var apps = new Card("Linked apps", "When one of these is the focused window, Reticly switches to this profile");
             apps.Body.Controls.Add(new ProcessListEditor(p.Processes, () => App.NotifyProfileEdited()));
             var det = new ToggleSwitch();
             det.SetSilently(App.State.Settings.ProfileDetection);

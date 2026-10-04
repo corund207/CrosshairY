@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>
     /// Minimal JSON reader/writer. Objects become Dictionary&lt;string, object&gt; (insertion ordered),

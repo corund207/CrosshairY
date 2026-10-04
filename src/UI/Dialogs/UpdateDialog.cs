@@ -2,10 +2,10 @@ using System;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.UI.Controls;
+using Reticly.Core;
+using Reticly.UI.Controls;
 
-namespace CrosshairY.UI.Dialogs
+namespace Reticly.UI.Dialogs
 {
     /// <summary>"Update available": release notes, then download → verify → swap → restart.</summary>
     public class UpdateDialog : DarkDialog
@@ -17,7 +17,7 @@ namespace CrosshairY.UI.Dialogs
         public UpdateDialog(UpdateInfo u) : base(L.T("Update available"), 560)
         {
             info = u;
-            Content.Controls.Add(new WrapLabel(string.Format(L.T("CrosshairY {0} is available — you have {1}. Your crosshairs, profiles and settings are kept."), u.Version, Program.Version), Theme.Body, Theme.TextDim));
+            Content.Controls.Add(new WrapLabel(string.Format(L.T("Reticly {0} is available — you have {1}. Your crosshairs, profiles and settings are kept."), u.Version, Program.Version), Theme.Body, Theme.TextDim));
             var notes = new TextBox
             {
                 Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, BorderStyle = BorderStyle.None,

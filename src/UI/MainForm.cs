@@ -5,13 +5,13 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Input;
-using CrosshairY.UI.Controls;
-using CrosshairY.UI.Dialogs;
-using CrosshairY.UI.Pages;
+using Reticly.Core;
+using Reticly.Input;
+using Reticly.UI.Controls;
+using Reticly.UI.Dialogs;
+using Reticly.UI.Pages;
 
-namespace CrosshairY.UI
+namespace Reticly.UI
 {
     public abstract class Page : Panel
     {
@@ -45,7 +45,7 @@ namespace CrosshairY.UI
         public MainForm()
         {
             Instance = this;
-            Text = "CrosshairY";
+            Text = "Reticly";
             BackColor = Theme.Chrome;
             ForeColor = Theme.Text;
             Font = Theme.Body;
@@ -65,7 +65,7 @@ namespace CrosshairY.UI
             Controls.Add(titleBar);
             content.Controls.Add(Toast);
 
-            Tray = new NotifyIcon { Icon = AppIcon.Make(32), Text = "CrosshairY", Visible = true };
+            Tray = new NotifyIcon { Icon = AppIcon.Make(32), Text = "Reticly", Visible = true };
             Tray.MouseClick += (s, e) => { if (e.Button == MouseButtons.Left) ShowFromTray(); };
             Tray.ContextMenuStrip = BuildTrayMenu();
             Tray.ContextMenuStrip.Opening += (s, e) => { Tray.ContextMenuStrip = BuildTrayMenu(); };
@@ -81,7 +81,7 @@ namespace CrosshairY.UI
             var app = AppController.I;
             app.Toast += msg =>
             {
-                if (app.State.Settings.ShowTrayNotifications && !Visible) try { Tray.ShowBalloonTip(1200, "CrosshairY", msg, ToolTipIcon.None); } catch { }
+                if (app.State.Settings.ShowTrayNotifications && !Visible) try { Tray.ShowBalloonTip(1200, "Reticly", msg, ToolTipIcon.None); } catch { }
             };
             app.VisibilityChanged += () => titleBar.Invalidate(true);
             app.ProfileChanged += () => titleBar.Invalidate(true);
@@ -126,7 +126,7 @@ namespace CrosshairY.UI
                 else
                 {
                     pendingUpdate = u;
-                    try { Tray.ShowBalloonTip(6000, L.T("Update available"), string.Format(L.T("CrosshairY {0} is ready. Click to update."), u.Version), ToolTipIcon.Info); } catch { }
+                    try { Tray.ShowBalloonTip(6000, L.T("Update available"), string.Format(L.T("Reticly {0} is ready. Click to update."), u.Version), ToolTipIcon.Info); } catch { }
                 }
             }
             catch (Exception ex)
@@ -229,7 +229,7 @@ namespace CrosshairY.UI
         {
             var app = AppController.I;
             var m = Menus.Create();
-            m.Items.Item(L.T("Open CrosshairY"), ShowFromTray);
+            m.Items.Item(L.T("Open Reticly"), ShowFromTray);
             m.Items.Sep();
             m.Items.Item(app.CrosshairVisible ? L.T("Hide crosshair") : L.T("Show crosshair"), app.ToggleVisible);
 
@@ -311,7 +311,7 @@ namespace CrosshairY.UI
                 if (!closeHintShown)
                 {
                     closeHintShown = true;
-                    try { Tray.ShowBalloonTip(2500, "CrosshairY is still running", "Your crosshair stays on screen. Open CrosshairY from the tray icon.", ToolTipIcon.Info); } catch { }
+                    try { Tray.ShowBalloonTip(2500, "Reticly is still running", "Your crosshair stays on screen. Open Reticly from the tray icon.", ToolTipIcon.Info); } catch { }
                 }
                 return;
             }
@@ -486,10 +486,10 @@ namespace CrosshairY.UI
                 int x = Theme.S(52);
                 // measure in this device context so the accent letter sits exactly where it would in the full word
                 var nf = TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.SingleLine;
-                int full = TextRenderer.MeasureText(g, "CrosshairY", Theme.Logo, new Size(1000, Height), nf).Width;
-                int y1 = TextRenderer.MeasureText(g, "Y", Theme.Logo, new Size(1000, Height), nf).Width;
-                Theme.DrawText(g, "Crosshair", Theme.Logo, Theme.Text, new Rectangle(x, 0, Theme.S(200), Height));
-                Theme.DrawText(g, "Y", Theme.Logo, Theme.Accent, new Rectangle(x + full - y1, 0, Theme.S(40), Height));
+                int full = TextRenderer.MeasureText(g, "Reticly", Theme.Logo, new Size(1000, Height), nf).Width;
+                int y1 = TextRenderer.MeasureText(g, "y", Theme.Logo, new Size(1000, Height), nf).Width;
+                Theme.DrawText(g, "Reticl", Theme.Logo, Theme.Text, new Rectangle(x, 0, Theme.S(200), Height));
+                Theme.DrawText(g, "y", Theme.Logo, Theme.Accent, new Rectangle(x + full - y1, 0, Theme.S(40), Height));
                 // divider before window buttons
                 using (var p = new Pen(Theme.Border)) g.DrawLine(p, Width - BtnW * 3 - Theme.S(4), Theme.S(12), Width - BtnW * 3 - Theme.S(4), Height - Theme.S(12));
                 using (var p = new Pen(Theme.Border)) g.DrawLine(p, preview.Left - Theme.S(12), Theme.S(12), preview.Left - Theme.S(12), Height - Theme.S(12));

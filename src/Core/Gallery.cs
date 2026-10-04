@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using CrosshairY.Import;
+using Reticly.Import;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     public sealed class GalleryItem
     {
@@ -45,7 +45,7 @@ namespace CrosshairY.Core
                 {
                     using (var wc = new WebClient())
                     {
-                        wc.Headers[HttpRequestHeader.UserAgent] = "CrosshairY/" + Program.Version;
+                        wc.Headers[HttpRequestHeader.UserAgent] = "Reticly/" + Program.Version;
                         wc.Encoding = System.Text.Encoding.UTF8;
                         json = wc.DownloadString(Url + "?t=" + DateTime.UtcNow.Ticks / TimeSpan.TicksPerHour);
                     }
@@ -73,7 +73,7 @@ namespace CrosshairY.Core
                 {
                     string code = J.Str(o, "code");
                     if (string.IsNullOrEmpty(code)) continue;
-                    var r = CodeImporter.Import(code);   // CrosshairY codes decode offline
+                    var r = CodeImporter.Import(code);   // Reticly codes decode offline
                     list.Add(new GalleryItem
                     {
                         Id = J.Str(o, "id") ?? Guid.NewGuid().ToString("N"),

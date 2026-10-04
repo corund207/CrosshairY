@@ -6,10 +6,10 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Render;
+using Reticly.Core;
+using Reticly.Render;
 
-namespace CrosshairY.Overlay
+namespace Reticly.Overlay
 {
     /// <summary>Per-pixel-alpha, click-through, always-on-top window that never takes focus.</summary>
     public sealed class OverlayWindow : Form
@@ -23,7 +23,7 @@ namespace CrosshairY.Overlay
             FormBorderStyle = FormBorderStyle.None;
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.Manual;
-            Text = "CrosshairY Overlay";
+            Text = "Reticly Overlay";
             Size = new Size(1, 1);
             Location = new Point(-10000, -10000);
         }

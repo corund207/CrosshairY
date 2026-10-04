@@ -4,13 +4,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.Import;
-using CrosshairY.Input;
-using CrosshairY.UI.Controls;
-using CrosshairY.UI.Dialogs;
+using Reticly.Core;
+using Reticly.Import;
+using Reticly.Input;
+using Reticly.UI.Controls;
+using Reticly.UI.Dialogs;
 
-namespace CrosshairY.UI.Pages
+namespace Reticly.UI.Pages
 {
     /// <summary>Crosshairs section: Discover / Browse / Saved tabs with Share and Import actions.</summary>
     public sealed class CrosshairsPage : Page
@@ -354,7 +354,7 @@ namespace CrosshairY.UI.Pages
                 return hasStages || over || J.Num(fo, "firingOffset") != 0 || J.Bool(fo, "tShapeWhenFiring");
             });
 
-            static bool IsImported(CrosshairEntry e) => e.Source.StartsWith("cx:") || e.Source == "valorant" || e.Source == "cs2" || e.Source == "crosshairy" || e.Source == "json";
+            static bool IsImported(CrosshairEntry e) => e.Source.StartsWith("cx:") || e.Source == "valorant" || e.Source == "cs2" || e.Source == "reticly" || e.Source == "json";
 
             void BuildCategories()
             {

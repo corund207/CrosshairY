@@ -5,11 +5,11 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
-using CrosshairY.UI.Controls;
-using CrosshairY.UI.Dialogs;
+using Reticly.Core;
+using Reticly.UI.Controls;
+using Reticly.UI.Dialogs;
 
-namespace CrosshairY.UI.Pages
+namespace Reticly.UI.Pages
 {
     /// <summary>Settings: General / Recording &amp; Streaming tabs, a categories column and icon-tile setting rows.</summary>
     public sealed class SettingsPage : Page
@@ -115,7 +115,7 @@ namespace CrosshairY.UI.Pages
             Caption(Glyph.Display, "Interface");
             var card = new SettingsCard();
             var close = new Dropdown { Width = Theme.S(220) };
-            close.Items.AddRange(new object[] { L.T("Minimize to tray"), L.T("Exit CrosshairY") });
+            close.Items.AddRange(new object[] { L.T("Minimize to tray"), L.T("Exit Reticly") });
             close.SelectedIndex = s.CloseToTray ? 0 : 1;
             close.SelectedIndexChanged += (o, e) => { s.CloseToTray = close.SelectedIndex == 0; App.State.MarkSettingsChanged(); };
             card.Add(new SettingRow(Glyph.ChromeClose, "Close Button", "What happens when you close the window", close));
@@ -132,7 +132,7 @@ namespace CrosshairY.UI.Pages
                 s.Language = code;
                 App.State.MarkSettingsChanged();
                 L.Use(code);
-                if (DarkDialog.Confirm(Main, L.T("Language"), L.T("Restart CrosshairY now to switch the language?"), L.T("Restart")))
+                if (DarkDialog.Confirm(Main, L.T("Language"), L.T("Restart Reticly now to switch the language?"), L.T("Restart")))
                 {
                     App.State.SaveNow();
                     try { Process.Start(new ProcessStartInfo(Application.ExecutablePath, "--updated") { UseShellExecute = false }); } catch { }
@@ -143,7 +143,7 @@ namespace CrosshairY.UI.Pages
             var tour = new FlatButton(L.T("Take the tour"), Glyph.Compass, ButtonKind.Secondary);
             tour.AutoSizeWidth();
             tour.Click += (o, e) => Tour.Start(MainForm.Instance);
-            card.Add(new SettingRow(Glyph.Compass, "Tour", "A quick walk through the main parts of CrosshairY", tour));
+            card.Add(new SettingRow(Glyph.Compass, "Tour", "A quick walk through the main parts of Reticly", tour));
             scroll.Stack.Controls.Add(card);
         }
 
@@ -264,7 +264,7 @@ namespace CrosshairY.UI.Pages
             var s = App.State.Settings;
             Caption(Glyph.Rocket, "Startup");
             var card = new SettingsCard();
-            card.Add(new SettingRow(Glyph.Rocket, "Launch on Startup", "Start CrosshairY when you sign in to Windows", Toggle(s.LaunchOnStartup, v => { s.LaunchOnStartup = v; AppController.SetLaunchOnStartup(v); })));
+            card.Add(new SettingRow(Glyph.Rocket, "Launch on Startup", "Start Reticly when you sign in to Windows", Toggle(s.LaunchOnStartup, v => { s.LaunchOnStartup = v; AppController.SetLaunchOnStartup(v); })));
             card.Add(new SettingRow(Glyph.Minimize, "Start Minimized", "Open straight to the system tray", Toggle(s.StartMinimized, v => s.StartMinimized = v)));
             card.Add(new SettingRow(Glyph.Eye, "Crosshair Visible on Launch", "Otherwise it starts hidden until you press Global Toggle", Toggle(s.VisibleOnLaunch, v => s.VisibleOnLaunch = v)));
             scroll.Stack.Controls.Add(card);
@@ -376,7 +376,7 @@ namespace CrosshairY.UI.Pages
             export.AutoSizeWidth();
             export.Click += (o, e) =>
             {
-                using (var d = new SaveFileDialog { Filter = L.T("CrosshairY backup") + "|*.crosshairy;*.json", FileName = "CrosshairY-backup-" + DateTime.Now.ToString("yyyy-MM-dd") + ".crosshairy" })
+                using (var d = new SaveFileDialog { Filter = L.T("Reticly backup") + "|*.reticly;*.json", FileName = "Reticly-backup-" + DateTime.Now.ToString("yyyy-MM-dd") + ".reticly" })
                     if (d.ShowDialog(Main) == DialogResult.OK)
                     {
                         try { File.WriteAllText(d.FileName, App.State.ExportAll()); MainForm.Instance.ShowToast("Backup saved", Glyph.Upload); }
@@ -388,7 +388,7 @@ namespace CrosshairY.UI.Pages
             import.AutoSizeWidth();
             import.Click += (o, e) =>
             {
-                using (var d = new OpenFileDialog { Filter = L.T("CrosshairY backup or crosshair JSON") + "|*.crosshairy;*.json|" + L.T("All files") + "|*.*" })
+                using (var d = new OpenFileDialog { Filter = L.T("Reticly backup or crosshair JSON") + "|*.reticly;*.crosshairy;*.json|" + L.T("All files") + "|*.*" })
                 {
                     if (d.ShowDialog(Main) != DialogResult.OK) return;
                     try
@@ -429,7 +429,7 @@ namespace CrosshairY.UI.Pages
             reset.AutoSizeWidth();
             reset.Click += (o, e) =>
             {
-                if (!DarkDialog.Confirm(Main, "Reset CrosshairY", "Delete all crosshairs, profiles and settings and start fresh? Back up first if you want to keep anything.", "Reset everything", true)) return;
+                if (!DarkDialog.Confirm(Main, "Reset Reticly", "Delete all crosshairs, profiles and settings and start fresh? Back up first if you want to keep anything.", "Reset everything", true)) return;
                 App.State.Library.Clear();
                 App.State.Folders.Clear();
                 App.State.Profiles.Clear();
@@ -512,7 +512,7 @@ namespace CrosshairY.UI.Pages
         public GameListDialog() : base("Games", 620)
         {
             var s = AppController.I.State.Settings;
-            Content.Controls.Add(new WrapLabel("CrosshairY treats these apps as games for “Show Only In-Game”.", Theme.Small, Theme.TextDim));
+            Content.Controls.Add(new WrapLabel("Reticly treats these apps as games for “Show Only In-Game”.", Theme.Small, Theme.TextDim));
             var host = new ScrollHost { Height = Theme.S(320), BackColor = Theme.Surface };
             host.Stack.BackColor = Theme.Surface;
             var editor = new ProcessListEditor(s.GameProcesses, () => AppController.I.State.MarkSettingsChanged());

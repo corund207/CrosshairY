@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CrosshairY.Core
+namespace Reticly.Core
 {
     /// <summary>Generates random but sensible crosshairs for the Randomizer and "Surprise me".</summary>
     public static class RandomCrosshair

@@ -8,15 +8,15 @@ using System.Net;
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.Import
+namespace Reticly.Import
 {
     public sealed class ImportResult
     {
         public List<object> Layers;
         public string Name;
-        public string Source;      // "cx:<id>", "valorant", "cs2", "crosshairy", "json"
+        public string Source;      // "cx:<id>", "valorant", "cs2", "reticly", "json"
         public string Kind;        // human readable
         public string Note;        // extra info (approximations etc.)
     }
@@ -24,7 +24,7 @@ namespace CrosshairY.Import
     /// <summary>
     /// Imports crosshairs from:
     ///  • Crosshair X share codes (e.g. "xe4lbu6zh8") and share links (crosshairx.gg/s/xe4lbu6zh8)
-    ///  • CrosshairY share codes ("CXY1-...", fully offline)
+    ///  • Reticly share codes ("CXY1-...", fully offline)
     ///  • VALORANT crosshair profile codes ("0;P;c;5;h;0;...")
     ///  • Counter-Strike 2 / CS:GO share codes ("CSGO-xxxxx-..." and the new "CS..." format)
     ///  • Raw Crosshair X layer JSON
@@ -45,7 +45,7 @@ namespace CrosshairY.Import
         {
             var s = (input ?? "").Trim();
             if (s.Length == 0) return null;
-            if (s.StartsWith(OwnPrefix, StringComparison.OrdinalIgnoreCase)) return "crosshairy";
+            if (s.StartsWith(OwnPrefix, StringComparison.OrdinalIgnoreCase)) return "reticly";
             if (CxLink.IsMatch(s)) return "cx";
             if (CsLegacy.IsMatch(s) || Cs2New.IsMatch(s)) return "cs2";
             if (Regex.IsMatch(s, @"^\d+;") && s.Contains(";")) return "valorant";
@@ -59,7 +59,7 @@ namespace CrosshairY.Import
             switch (kind)
             {
                 case "cx": return "Crosshair X share code";
-                case "crosshairy": return "CrosshairY code";
+                case "reticly": return "Reticly code";
                 case "cs2": return "Counter-Strike crosshair code";
                 case "valorant": return "VALORANT crosshair code";
                 case "json": return "Crosshair JSON";
@@ -73,12 +73,12 @@ namespace CrosshairY.Import
             var s = (input ?? "").Trim();
             switch (Detect(s))
             {
-                case "crosshairy": return ImportOwn(s);
+                case "reticly": return ImportOwn(s);
                 case "cx": return ImportCrosshairX(s);
                 case "cs2": return CsCrosshair.Import(s);
                 case "valorant": return ValorantCrosshair.Import(s);
                 case "json": return ImportJson(s);
-                default: throw new FormatException("That doesn't look like a crosshair code. Paste a Crosshair X code or link, a VALORANT code, a CS2 code, or a CrosshairY code.");
+                default: throw new FormatException("That doesn't look like a crosshair code. Paste a Crosshair X code or link, a VALORANT code, a CS2 code, or a Reticly code.");
             }
         }
 
@@ -101,7 +101,7 @@ namespace CrosshairY.Import
                 using (var wc = new WebClient())
                 {
                     wc.Encoding = Encoding.UTF8;
-                    wc.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 CrosshairY";
+                    wc.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 Reticly";
                     json = wc.DownloadString(CxFetchUrl + Uri.EscapeDataString(id));
                 }
             }
@@ -150,7 +150,7 @@ namespace CrosshairY.Import
             return new ImportResult { Layers = ParseLayers(parsed), Name = name, Source = "json", Kind = DescribeKind("json") };
         }
 
-        // ---------------- CrosshairY own codes ----------------
+        // ---------------- Reticly own codes ----------------
 
         public static string ExportOwn(List<object> layers, string name = null)
         {
@@ -177,8 +177,8 @@ namespace CrosshairY.Import
             {
                 Layers = ParseLayers(parsed),
                 Name = J.Str(parsed, "name") ?? "Shared crosshair",
-                Source = "crosshairy",
-                Kind = DescribeKind("crosshairy")
+                Source = "reticly",
+                Kind = DescribeKind("reticly")
             };
         }
 

@@ -5,9 +5,9 @@ using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
-using CrosshairY.Core;
+using Reticly.Core;
 
-namespace CrosshairY.UI.Controls
+namespace Reticly.UI.Controls
 {
     public abstract class DarkControl : Control
     {

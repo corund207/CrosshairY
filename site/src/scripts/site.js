@@ -1,6 +1,6 @@
 import data from '../data/patterns.json';
 
-const REPO = 'corund207/CrosshairY';
+const REPO = 'corund207/Reticly';
 const SVGNS = 'http://www.w3.org/2000/svg';
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, attrs = {}, parent) => {
@@ -289,7 +289,8 @@ if (plot) {
     const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { Accept: 'application/vnd.github+json' } });
     if (!r.ok) return;
     const j = await r.json();
-    const a = (j.assets || []).find((x) => x.name === 'CrosshairY.exe');
+    const a = (j.assets || []).find((x) => x.name === 'Reticly.exe' || x.name === 'CrosshairY.exe');
+    if (a?.browser_download_url) document.querySelectorAll('[data-dl]').forEach((n) => (n.href = a.browser_download_url));
     const set = (k, v) => document.querySelectorAll(`[data-rel="${k}"]`).forEach((n) => { if (v) n.textContent = v; });
     set('version', String(j.tag_name || '').replace(/^v/, ''));
     set('date', String(j.published_at || '').slice(0, 10));
