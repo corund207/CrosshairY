@@ -9,14 +9,14 @@ using Reticly.UI;
 [assembly: System.Reflection.AssemblyTitle("Reticly")]
 [assembly: System.Reflection.AssemblyProduct("Reticly")]
 [assembly: System.Reflection.AssemblyDescription("Custom crosshair overlay for any PC game")]
-[assembly: System.Reflection.AssemblyVersion("1.2.0.0")]
-[assembly: System.Reflection.AssemblyFileVersion("1.2.0.0")]
+[assembly: System.Reflection.AssemblyVersion("1.3.0.0")]
+[assembly: System.Reflection.AssemblyFileVersion("1.3.0.0")]
 
 namespace Reticly
 {
     public static class Program
     {
-        public const string Version = "1.2.0";
+        public const string Version = "1.3.0";
         public static int ShowMessage;
         /// <summary>True while rendering --snap screenshots (no update checks, tour, etc.).</summary>
         public static bool SnapMode;

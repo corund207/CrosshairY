@@ -43,6 +43,7 @@ A free, open-source crosshair overlay with recoil-tracking crosshairs: a tracker
 
 ## Brand Commitments
 
+- The website is an **Apple-style product page** (the user's choice): Apple's page grammar only, never Apple's marks, imagery or copy.
 - Name **Reticly**, written with the final **Y** in the accent orange (`#F59E0B`-family amber, as in the app's logo). The app mark is a ring with four ticks and a center dot.
 - The app's UI is dark, with amber accents and Noto Sans.
 - **Do not mention Crosshair X** (or any competitor) anywhere on the site.
