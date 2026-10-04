@@ -18,6 +18,8 @@ namespace CrosshairY
     {
         public const string Version = "1.2.0";
         public static int ShowMessage;
+        /// <summary>True while rendering --snap screenshots (no update checks, tour, etc.).</summary>
+        public static bool SnapMode;
         static Mutex mutex;
 
         [STAThread]
@@ -29,12 +31,19 @@ namespace CrosshairY
 
             ShowMessage = Native.RegisterWindowMessage("CrosshairY.ShowWindow.7f3a");
             bool snap = args.Length >= 3 && args[0] == "--snap";   // developer aid: render pages to PNG files
+            SnapMode = snap;
             mutex = new Mutex(true, snap ? "CrosshairY.Snap" : "CrosshairY.SingleInstance.7f3a", out bool first);
+            if (!first && args.Contains("--updated"))
+            {
+                // started by the updater: wait for the old version to finish exiting
+                try { first = mutex.WaitOne(15000); } catch (AbandonedMutexException) { first = true; }
+            }
             if (!first)
             {
                 Native.PostMessage(Native.HWND_BROADCAST, ShowMessage, IntPtr.Zero, IntPtr.Zero);
                 return;
             }
+            if (!snap) Updater.CleanupOld();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -54,6 +63,7 @@ namespace CrosshairY
             // a SynchronizationContext must exist before Init so input events marshal to the UI thread
             SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
             app.Init();
+            L.Use(app.State.Settings.Language);
             if (!app.State.Settings.FirstRunDone)
             {
                 SeedLibrary(app.State);
@@ -79,7 +89,19 @@ namespace CrosshairY
                     foreach (var key in args[1].Split(','))
                     {
                         string[] parts = key.Split(':');
-                        form.Navigate(parts[0]);
+                        Form target = form;
+                        if (parts[0] == "tour") Tour.Start(form, parts.Length > 1 ? int.Parse(parts[1]) : 0);
+                        else if (parts[0] == "patterns" || parts[0] == "update")
+                        {
+                            // dialogs: shown off-screen and captured on their own
+                            target = parts[0] == "patterns"
+                                ? UI.Dialogs.PatternEditorDialog.CreateForSnap(Recoil.Find(parts.Length > 1 ? parts[1].Replace('_', ' ').Replace('~', '|') : "VALORANT|Vandal"))
+                                : new UI.Dialogs.UpdateDialog(new UpdateInfo { Version = "9.9.9", Sha256 = "x", Notes = "## What's new\n\n- **Auto-update**: this dialog\n- Spray pattern editor\n- Hit markers" });
+                            target.StartPosition = FormStartPosition.Manual;
+                            target.Location = new System.Drawing.Point(-30000, -30000);
+                            target.Show(form);
+                        }
+                        else form.Navigate(parts[0]);
                         if (parts.Length > 1 && parts[0] == "designer") form.Designer.SelectTabForSnap(parts[1]);
                         if (parts.Length > 1 && parts[0] == "crosshairs") form.Crosshairs.SelectTab(int.Parse(parts[1]));
                         for (int i = 0; i < 20; i++) { Application.DoEvents(); Thread.Sleep(15); }
@@ -91,18 +113,19 @@ namespace CrosshairY
                                 sh.AutoScrollPosition = new System.Drawing.Point(0, 100000);
                             for (int i = 0; i < 20; i++) { Application.DoEvents(); Thread.Sleep(15); }
                         }
-                        using (var bmp = new System.Drawing.Bitmap(form.Width, form.Height))
+                        using (var bmp = new System.Drawing.Bitmap(target.Width, target.Height))
                         {
                             // PrintWindow captures the real DWM rendering (custom title bar, floating panels)
                             using (var g = System.Drawing.Graphics.FromImage(bmp))
                             {
                                 var hdc = g.GetHdc();
-                                bool ok = PrintWindow(form.Handle, hdc, 2);
+                                bool ok = PrintWindow(target.Handle, hdc, 2);
                                 g.ReleaseHdc(hdc);
-                                if (!ok) form.DrawToBitmap(bmp, new System.Drawing.Rectangle(0, 0, form.Width, form.Height));
+                                if (!ok) target.DrawToBitmap(bmp, new System.Drawing.Rectangle(0, 0, target.Width, target.Height));
                             }
-                            bmp.Save(System.IO.Path.Combine(args[2], key.Replace(':', '_') + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                            bmp.Save(System.IO.Path.Combine(args[2], key.Replace(':', '_').Replace('|', '~') + ".png"), System.Drawing.Imaging.ImageFormat.Png);
                         }
+                        if (target != form) target.Dispose();
                     }
                     form.ExitApp();
                 }));

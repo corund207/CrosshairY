@@ -63,6 +63,7 @@ namespace CrosshairY.Core
         public void Init()
         {
             State.Load();
+            Recoil.LoadCustom();
             Render.ImageCache.DiskCacheDir = Path.Combine(AppState.DataDir, "cache");
             CrosshairVisible = State.Settings.VisibleOnLaunch;
             // keep saved recoil crosshairs in sync with the current weapon defaults (e.g. fire-rate tweaks)
@@ -253,11 +254,18 @@ namespace CrosshairY.Core
         /// <summary>Switches the active recoil crosshair to a loadout slot's weapon ("off" disables tracking).</summary>
         public void SelectRecoilSlot(RecoilSlot slot)
         {
+            // per-weapon crosshair: switch design first, then point its tracker(s) at the slot's gun
+            bool switched = false;
+            if (!string.IsNullOrEmpty(slot.CrosshairId) && slot.CrosshairId != Profile.CrosshairId && State.Find(slot.CrosshairId) != null)
+            {
+                ApplyCrosshair(slot.CrosshairId);
+                switched = true;
+            }
             var e = ActiveCrosshair;
-            if (e == null || !Recoil.HasRecoil(e.Layers)) { ShowOverlayLabel("No recoil crosshair"); return; }
             var pattern = slot.Weapon == "off" ? null : Recoil.Find(slot.Weapon);
+            if (e == null || !Recoil.HasRecoil(e.Layers)) { ShowOverlayLabel(switched ? pattern?.Name ?? e?.Name ?? "" : "No recoil crosshair"); return; }
             if (pattern == null && slot.Weapon != "off") return;
-            Recoil.SetWeapon(e.Layers, pattern);
+            Recoil.SetWeapon(e.Layers, pattern, slot.Scale > 0 ? slot.Scale : 1);
             e.Updated = DateTime.UtcNow;
             State.MarkLibraryChanged();
             PushCrosshair();
@@ -298,6 +306,13 @@ namespace CrosshairY.Core
         }
 
         public event Action<RecoilPattern> WeaponChanged;
+
+        /// <summary>Plays the hit marker (or kill flash) around the crosshair.</summary>
+        public void React(bool kill)
+        {
+            var s = State.Settings;
+            Overlay?.React(Reactions.Build(s, kill), kill ? (int)(s.ReactionMs * 1.6) : s.ReactionMs);
+        }
 
         // ---------------- visibility & placement ----------------
 
@@ -481,7 +496,10 @@ namespace CrosshairY.Core
             bool pad = State.Settings.ControllerSupport;
             // fire / aim are hold-style triggers, matched without modifiers
             if (Matches(p.FireKey, ev, true) || (pad && Matches(p.FirePad, ev, true)))
+            {
                 Overlay.TriggerInput("left", isDown);
+                if (isDown && State.Settings.HitOnFire) React(false);
+            }
             if (Matches(p.AimKey, ev, true) || (pad && Matches(p.AimPad, ev, true)))
             {
                 Overlay.TriggerInput("right", isDown);
@@ -513,6 +531,8 @@ namespace CrosshairY.Core
             if (Matches(p.CenterKey, ev)) CenterPosition();
             if (Matches(p.SizeUpKey, ev)) ChangeScale(0.25);
             if (Matches(p.SizeDownKey, ev)) ChangeScale(-0.25);
+            if (Matches(p.HitKey, ev) || (pad && Matches(p.HitPad, ev))) React(false);
+            if (Matches(p.KillKey, ev) || (pad && Matches(p.KillPad, ev))) React(true);
             foreach (var slot in p.RecoilSlots.ToList())
                 if (Matches(slot.Key, ev) || (pad && Matches(slot.PadKey, ev))) { SelectRecoilSlot(slot); break; }
             foreach (var b in p.CrosshairBinds.ToList())

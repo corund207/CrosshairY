@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "about": "CrosshairY community gallery. Add designs by opening a 'Gallery submission' issue.",
+  "crosshairs": [
+    {
+      "id": "dusk-cross",
+      "name": "Dusk Cross",
+      "author": "corund207",
+      "category": "Classic",
+      "added": "2026-10-03",
+      "code": "CXY1-7VM9b8IwEP0r1XXNEGirShkpYmVopQ6IwSQXYuHYqX2hTRH_vXcOH0GiqrrDgnO-e-_dy8sOrKoRMpi2YXP34l0IkIBRHfoA2WIHhSPI-E9zG6GHLE3ANSrX1MVz7ozjKtzPZpOHx2ceDpVqBDF8tMojF1amlbk942qLgmbQrqmC7CkBqnS-sci02ZiRyzIgxYsTyegayVYHvTIMtgByDRe8XlckZI7I1bIDlgTLsxyPOSm7NgNFPOVIkXa2l-daOiocyBr9oiWNv4v9Su21Xc8bgQzRttYf8VkJKU9TZHPjI6rAzYwknMozUO3agJOWF7BSlgUSaDyreOviDvEsy6LhaZxgpbY6quELlO5Cy56REazztTJihWOLslKZgGz4qxjyXqGdRbWni4P4wxtIpWCVmQ9WXzFQPR0wsGGfyhfCG2NyfsUXbvJD44Luh2KT5Ks_bjlosT6-7IKvqKE7BOcwAEF_M-KIS9RbUrsCDeyTK0kd_xWifyQ1vUhqek7qn5_DLam3pA6Tutz_AA"
+    },
+    {
+      "id": "ice-bracket",
+      "name": "Ice Bracket",
+      "author": "corund207",
+      "category": "Fancy",
+      "added": "2026-10-03",
+      "code": "CXY1-7ZMxT8MwEIX_CjrWDClIIDJGpRJTB5AYqg4X59JYdexgO4VQ9b9zdlrSogrEisgS5-J79_nlZQsaG4IMHgRd5BbFmjwkoLAn6yBbbKE0HjK-Sd7nyUKWJmBaFNL3cS2MMlyFy7v8_nY242ZXYxsk3UuHlrhQqC707VhXagpqivTK15DdJOBrKdaaHE-bsHJVOSbIJsdTJuembKSThWK1BXjTcsHKVR3YC-O9acIhqPKwHHnQihGG9xuPXho9kJnOH-C-EJ2jSON1crRKWqlX8zZIuuhYZw_6zODR-imxr_GR0PFmVgoz0bJQYzpHecfoOpQDegKtZYqnPtLHdTgmKe6mnGrcyEjDL-JHK6UlMUwEbWyDKphg2JysQuWIvX4MVjzXpGeR9vPFHn5vfhoKGtX86OgFCzXTowls2CvaMsyNCRm_7omb_NAaJ4emuClEa1huOGOxfnW6C94iQ7_PzL4BnHxnxQmX_GBJY0pSsEvOhPT6p_gcQiGkFer7kKYnIU3HkP74J_w-o8Ff1Ktjov-k_pmkLncf"
+    },
+    {
+      "id": "sniper-ladder",
+      "name": "Sniper Ladder",
+      "author": "corund207",
+      "category": "T-Style",
+      "added": "2026-10-03",
+      "code": "CXY1-7VKxTsMwEP0VdKwZkoIKyliqTkgdisRQdXCSS2Lh2MF2CqHqv3N2UtqiZkACscSL7fPdu3fPbweSVQgxrCSvUV89sixDDQEI1qI2EK93kCkLMW2cMi09xmEAqmYpt60_p0ooisL13cNiMZ1RsSlZ7UDNa8M0UiARjavbEy6X6NAEysKWEN8HYEuevkg01C0i5Dw3SA1vT5pEl5psueGJILA1geWWIpoXpdutqmFzZKExtUwW4oQI5SrLLFeyY6UaeyD2jc0lCqFfZ2PlXHNZLGsHabxajT7gExPLtJ0jaeqvyAwlE5LryZzalWoMzhprXcFhnFoTi6fWz-DPbkQUVI0zLNmWezb0gC47425O3xGk0hUT7hcVSRHnTBgkWVZOkOcS5cKz_XroyffChy4gmViejJ4QUDU_6UCCvTGdub7eHcefPVOTLrUyvCvySc5W3XFL_vLxyXkWvHsObe-XvgAM_yDEiEK2k6RSGQrYB39s0Jshg0bhDxyaKPrbanTl6MrfceVk0JXT0ZWjK__JldGQKydD9hhdObpys_8E"
+    },
+    {
+      "id": "violet-x",
+      "name": "Violet X",
+      "author": "corund207",
+      "category": "Classic",
+      "added": "2026-10-03",
+      "code": "CXY1-7VPBTsJAEP0VM157KERC0iOSXjlo1IRwWGBKN2536-4UrYR_d2apUBI4mHgxsRe205n33rx97MCqCiGDJ-0M0s0LJGBUiz5ANt_B2hFk_KO5idBDlibgarXS1MbzyhnHVbi9H4-nec7DoVS14IW3RnnkwtI0MrdnXG1R0AzaDZWQjRKgUq9eLQZmGzJyUQRkwrseyeASyVYHvTQMNgdyNRe83pQkZI7IVbIDFgSLkxyPK1J2Y3qKeMqRIu0sM45Yn2voW2JP1-CKmDQ-ZwsW2mu7mdWCGaJvje8ImC2Q8jRFdje-ogrczEjCqTwDVa4JOGl4Aytl2SCB2rOKxzYuEc-yLRqexgmWaqujGv6A0r3WsmhkBOt8pYx44dijrFAmIDv-II48l2jzqPb4oRPfXUEqBavMrLf6koGqaY-BDXtXfi28MSenOz5zk19qF_RhKDZJwA7HLSct1ofnXfARNbRdcroBCPqTEQdcooMllVujgX1yIarDKxeXx-dnUU3Popqeonrt_3Ak-fWopv9J_ctJXey_AA"
+    },
+    {
+      "id": "tri-point",
+      "name": "Tri Point",
+      "author": "corund207",
+      "category": "Chevron",
+      "added": "2026-10-03",
+      "code": "CXY1-7VPBTsMwDP0VZK49dEMMqcdq2nVITOIw7ZBubmuRJiVJB2Xav-OkHWvF0MQV0UsSx35-fnk9gBIVQgIrQzePmpSDCKRo0VhI1gfYaQcJL8RZDg0kcQS6FltybdhvtdQchdvFYpbOUi62pag9oH1thEEOZLLxdUfGJYUeTaIqXAnJfQSupO2LQsvd7hg5zy1yw4dBk8mlJnuylEkGWzNY7jkbKkq_Zto5XcHmTMQZEqqQAyqcrZ1wpFXHSzfuRG3AZ_IDiTh8o8FyMqSKZe0hbdCrMSd8JuKEcXNkVcMRheVkRvI9hWGgSjcW04aJKx_uBqoNs1i1YYSw90Oi5GpMsRR7Cmz4An32jgxuu46gtKmE9O-odQ1JLqRFVvrJ6_FcoloEtl8XPfle-tgHlJDLwegZA1XzQQcW7E2Yne8b_HF-25GafKi1pa4oJHljdds9OyzEp-MseA8c2t4xfQFY-mDECYdcJ0mldyjhGF2w6PSae35h0Xhk0fhs0av_wcCijp_hm0Oj7qEHRvX6_jv1rzp1c_wE"
+    },
+    {
+      "id": "halo",
+      "name": "Halo",
+      "author": "corund207",
+      "category": "Circle",
+      "added": "2026-10-03",
+      "code": "CXY1-7VTBbsIwDP0X79oDMGmaehtCaDcOm7QD4hCKS6OlcZe4bB3i3-ekdBQEQtuZXhon9vPzy2u3YFWJkMKzMgQJGNWg85DOt7AihlReWhIYHaTDxwSoUpnmRoIEMjIk23A3jY9U-0JVAcxpu5ZwaWo5HyTAhc7eLXoBHu6kibYYoA3aNRenGRJRnnvkdtk1HJxruNFeL42AzYGpkg2n1wWH1sRMZRgIc4ZFjxpmrOxaanr8HLFiTVYCoUc1dwz7xC8MP4jPAU0Ach0EmFUB0kcNa9fhCxNWjicoSscQlQ9qpVEV5QSopNrjuJYBbNgOAyRQOWHx2sQZ4joMi0aqcYyF2ujIRg4wZK90mDN2BEuuVCZIQSJRmivjUQR_CYK8FWinke3vwZ784QZybZWZ9UZfClA56XUQwT6VW4W-0TOHKz5SU4KKvG6LYlIwW7vciOvi_ug4C74ih6YVtisAr7-x9RK3kpS0QgO75Ixtr5qos4b_qJXDo5s8der9kVNHB6cOR9e-jZtVb1a9ZtXLJpo8DJ7-ZtV__FT3TW5OvTm179TF7gc"
+    }
+  ]
+}

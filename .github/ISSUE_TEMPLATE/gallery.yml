@@ -1,0 +1,42 @@
+name: Gallery submission
+description: Share a crosshair with everyone in Discover › Community gallery.
+title: "Gallery: "
+labels: ["gallery"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing! CrosshairY fills in the name and code when you use **Discover › Community gallery › Share yours**.
+        Accepted designs are added to `gallery/gallery.json` and show up in the app for everyone.
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: What should the crosshair be called?
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: CrosshairY code
+      description: The share code (starts with CXY). Use Share › Share Code in the app if it isn't filled in.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: author
+    attributes:
+      label: Credit as
+      description: The name to show next to the design (leave empty to use your GitHub username).
+  - type: input
+    id: category
+    attributes:
+      label: Category
+      description: Classic, Dot, Circle, Chevron, T-Style, Fancy, Animated or Recoil.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Sharing
+      options:
+        - label: I made this design (or have permission to share it), and I'm happy for it to be shared under the project's MIT license.
+          required: true

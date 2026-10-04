@@ -11,6 +11,8 @@ namespace CrosshairY.Core
         public int Rpm;
         public int[][] Points;
         public bool HandTuned;
+        /// <summary>Made or edited in the pattern editor (saved to patterns.json).</summary>
+        public bool Custom;
         /// <summary>Bullets that land dead center before recoil kicks in (first-shot accuracy). 1 = recoil starts right away.</summary>
         public int StableShots = 1;
         public double ShotMs => 60000.0 / Math.Max(1, Rpm);
@@ -26,9 +28,72 @@ namespace CrosshairY.Core
     /// </summary>
     public static class Recoil
     {
-        public static readonly string[] Games = { "VALORANT", "Counter-Strike 2", "Rust", "Apex Legends" };
+        static readonly string[] BuiltInGames = { "VALORANT", "Counter-Strike 2", "Rust", "Apex Legends" };
 
-        public static readonly List<RecoilPattern> Patterns = WithStableShots(Build());
+        /// <summary>Built-in games first, then games that only exist as custom patterns.</summary>
+        public static string[] Games => BuiltInGames.Concat(Patterns.Select(p => p.Game).Where(g => !BuiltInGames.Contains(g)).Distinct()).ToArray();
+
+        public static readonly List<RecoilPattern> BuiltIn = WithStableShots(Build());
+
+        /// <summary>Built-in patterns with custom ones applied (a custom pattern with a built-in key replaces it).</summary>
+        public static List<RecoilPattern> Patterns { get; private set; } = new List<RecoilPattern>(BuiltIn);
+
+        public static List<RecoilPattern> CustomPatterns => Patterns.Where(p => p.Custom).ToList();
+
+        static string CustomFile => System.IO.Path.Combine(AppState.DataDir, "patterns.json");
+
+        /// <summary>Loads patterns.json (custom and edited patterns).</summary>
+        public static void LoadCustom()
+        {
+            try
+            {
+                if (!System.IO.File.Exists(CustomFile)) return;
+                SetCustom((J.List(Json.Parse(System.IO.File.ReadAllText(CustomFile)), "patterns") ?? new List<object>()).Select(PatternFromJson).Where(p => p != null), save: false);
+            }
+            catch { }
+        }
+
+        /// <summary>Replaces the custom pattern set (and saves it).</summary>
+        public static void SetCustom(IEnumerable<RecoilPattern> custom, bool save = true)
+        {
+            var list = custom.ToList();
+            foreach (var c in list) c.Custom = true;
+            var merged = BuiltIn.Select(b => list.FirstOrDefault(c => c.Key == b.Key) ?? b).ToList();
+            merged.AddRange(list.Where(c => BuiltIn.All(b => b.Key != c.Key)));
+            Patterns = merged;
+            if (!save) return;
+            try
+            {
+                System.IO.Directory.CreateDirectory(AppState.DataDir);
+                System.IO.File.WriteAllText(CustomFile, Json.Serialize(J.O("version", 1, "patterns", list.Select(p => (object)PatternToJson(p)).ToList()), true));
+            }
+            catch { }
+        }
+
+        /// <summary>Adds or replaces one custom pattern. If its key changed, the old one is removed.</summary>
+        public static void SaveCustom(RecoilPattern p, string previousKey = null)
+        {
+            var list = CustomPatterns.Where(c => c.Key != p.Key && c.Key != previousKey).ToList();
+            list.Add(p);
+            SetCustom(list);
+        }
+
+        public static void DeleteCustom(string key) => SetCustom(CustomPatterns.Where(c => c.Key != key));
+
+        public static RecoilPattern BuiltInFor(string key) => BuiltIn.FirstOrDefault(b => b.Key == key);
+
+        public static Dictionary<string, object> PatternToJson(RecoilPattern p) => J.O("name", p.Name, "game", p.Game, "category", p.Category, "rpm", p.Rpm,
+            "stableShots", p.StableShots, "points", p.Points.Select(pt => (object)J.A(pt[0], pt[1])).ToList());
+
+        public static RecoilPattern PatternFromJson(object o)
+        {
+            var pts = (J.List(o, "points") ?? new List<object>()).OfType<List<object>>().Where(x => x.Count >= 2)
+                .Select(x => new[] { (int)Math.Round(J.ToNum(x[0])), (int)Math.Round(J.ToNum(x[1])) }).ToArray();
+            string name = J.Str(o, "name", "").Trim(), game = J.Str(o, "game", "Custom").Trim();
+            if (name.Length == 0 || pts.Length < 2) return null;
+            return new RecoilPattern { Name = name, Game = game.Length == 0 ? "Custom" : game, Category = J.Str(o, "category", "Custom"),
+                Rpm = (int)Math.Max(30, Math.Min(2000, J.Num(o, "rpm", 600))), StableShots = (int)Math.Max(1, Math.Min(15, J.Num(o, "stableShots", 1))), Points = pts, Custom = true };
+        }
 
         /// <summary>
         /// First-shot accuracy per weapon: how many bullets hit the center before the spray starts climbing.
@@ -233,7 +298,7 @@ namespace CrosshairY.Core
         }
 
         /// <summary>Writes the pattern into a layer's fire animation (hold to spray, release resets).</summary>
-        public static void Apply(Dictionary<string, object> layer, RecoilPattern pattern, double scale = 1, double rpm = 0, int stableShots = 0)
+        public static void Apply(Dictionary<string, object> layer, RecoilPattern pattern, double scale = 1, double rpm = 0, int stableShots = 0, double factor = double.NaN)
         {
             // per-layer tracker style, kept whenever the weapon, scale or fire rate changes:
             //   recoilFx      property overrides that kick in on the first recoil shot (e.g. { dot: { diameter: 6 } })
@@ -246,6 +311,9 @@ namespace CrosshairY.Core
             var fxEnd = J.Obj(old, "recoilFxEnd");
             bool invert = J.Bool(old, "recoilInvert"), mirror = J.Bool(old, "recoilMirror");
             int lag = Math.Max(0, (int)J.Num(old, "recoilLag"));
+            // recoilFactor: temporary multiplier from a loadout slot (the crosshair's own scale stays in recoilScale)
+            if (double.IsNaN(factor)) factor = J.Num(old, "recoilFactor", 1);
+            if (factor <= 0) factor = 1;
 
             double useRpm = rpm > 0 ? rpm : pattern.Rpm;
             double shot = 60000.0 / useRpm;
@@ -253,7 +321,7 @@ namespace CrosshairY.Core
             var basePos = J.ObjOrEmpty(layer, "position");
             double bx = J.Num(basePos, "x"), by = J.Num(basePos, "y");
             var pts = pattern.Points;
-            double sy = scale * (invert ? -1 : 1), sx = sy * (mirror ? -1 : 1);
+            double sy = scale * factor * (invert ? -1 : 1), sx = sy * (mirror ? -1 : 1);
             Func<int, Dictionary<string, object>> pos = i => J.O("x", Math.Round(bx + pts[i][0] * sx), "y", Math.Round(by + pts[i][1] * sy));
             var fo = Defaults.FiringOptions();
             fo["mouseButton"] = "left";
@@ -292,6 +360,7 @@ namespace CrosshairY.Core
             if (invert) fo["recoilInvert"] = true;
             if (mirror) fo["recoilMirror"] = true;
             if (lag > 0) fo["recoilLag"] = (double)lag;
+            if (Math.Abs(factor - 1) > 1e-6) fo["recoilFactor"] = factor;
             layer["firingOptions"] = fo;
         }
 
@@ -344,7 +413,7 @@ namespace CrosshairY.Core
         }
 
         /// <summary>Switches every recoil layer of a crosshair to another weapon, keeping each layer's scale. Null turns tracking off.</summary>
-        public static bool SetWeapon(List<object> layers, RecoilPattern pattern)
+        public static bool SetWeapon(List<object> layers, RecoilPattern pattern, double factor = 1)
         {
             bool any = false;
             foreach (var l in layers.OfType<Dictionary<string, object>>())
@@ -360,7 +429,7 @@ namespace CrosshairY.Core
                     continue;
                 }
                 double scale = J.Num(fo, "recoilScale", 1);
-                Apply(l, pattern, scale <= 0 ? 1 : scale);
+                Apply(l, pattern, scale <= 0 ? 1 : scale, 0, 0, factor);
                 any = true;
             }
             return any;

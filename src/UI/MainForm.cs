@@ -69,6 +69,14 @@ namespace CrosshairY.UI
             Tray.MouseClick += (s, e) => { if (e.Button == MouseButtons.Left) ShowFromTray(); };
             Tray.ContextMenuStrip = BuildTrayMenu();
             Tray.ContextMenuStrip.Opening += (s, e) => { Tray.ContextMenuStrip = BuildTrayMenu(); };
+            Tray.BalloonTipClicked += (s, e) =>
+            {
+                if (pendingUpdate == null) return;
+                var u = pendingUpdate;
+                pendingUpdate = null;
+                ShowFromTray();
+                ShowUpdate(u);
+            };
 
             var app = AppController.I;
             app.Toast += msg =>
@@ -82,9 +90,80 @@ namespace CrosshairY.UI
             app.State.LibraryChanged += () => titleBar.Invalidate(true);
 
             Navigate("crosshairs");
+
+            if (!Program.SnapMode)
+            {
+                // automatic update check (at most about once a day), a few seconds after start
+                var t = new Timer { Interval = 4000 };
+                t.Tick += (s, e) => { t.Stop(); t.Dispose(); if (Updater.AutoCheckDue(app.State.Settings)) CheckForUpdates(false); };
+                t.Start();
+            }
+        }
+
+        // ---------------- updates ----------------
+
+        UpdateInfo pendingUpdate;
+        bool checkingUpdate;
+
+        /// <summary>Asks GitHub for a newer release. manual = from a button (always reports the result).</summary>
+        public async void CheckForUpdates(bool manual)
+        {
+            if (checkingUpdate) return;
+            checkingUpdate = true;
+            var s = AppController.I.State.Settings;
+            try
+            {
+                var u = await Updater.CheckAsync();
+                s.LastUpdateCheck = DateTime.UtcNow.ToString("o");
+                AppController.I.State.MarkSettingsChanged();
+                if (u == null)
+                {
+                    if (manual) ShowToast(string.Format(L.T("You're on the latest version ({0})"), Program.Version), Glyph.Check);
+                    return;
+                }
+                if (!manual && u.Version == s.SkippedVersion) return;
+                if (Visible && WindowState != FormWindowState.Minimized) ShowUpdate(u);
+                else
+                {
+                    pendingUpdate = u;
+                    try { Tray.ShowBalloonTip(6000, L.T("Update available"), string.Format(L.T("CrosshairY {0} is ready. Click to update."), u.Version), ToolTipIcon.Info); } catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (manual) DarkDialog.Info(this, L.T("Couldn't check for updates"), ex.Message);
+            }
+            finally { checkingUpdate = false; }
+        }
+
+        public void ShowUpdate(UpdateInfo u)
+        {
+            using (var d = new UpdateDialog(u)) d.ShowDialog(this);
         }
 
         public void ShowToast(string text, string glyph = null) => Toast.Show(text, glyph);
+
+        /// <summary>Where a UI element is, in this form's client coordinates (used by the tour).</summary>
+        public Rectangle TourTarget(string key)
+        {
+            Rectangle r;
+            Control owner;
+            if (key == "pill" || key == "profile" || key == "preview") { r = titleBar.RectFor(key); owner = titleBar; }
+            else { r = sidebar.RectFor(key); owner = sidebar; }
+            if (r.IsEmpty) return r;
+            return RectangleToClient(owner.RectangleToScreen(r));
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (!Program.SnapMode && !AppController.I.State.Settings.TourDone)
+            {
+                var t = new Timer { Interval = 700 };
+                t.Tick += (s, e2) => { t.Stop(); t.Dispose(); if (Visible) Tour.Start(this); };
+                t.Start();
+            }
+        }
 
         public void ApplySidebarWidth() => sidebar.Width = AppController.I.State.Settings.SidebarCollapsed ? Theme.S(60) : Theme.S(170);
 
@@ -150,27 +229,61 @@ namespace CrosshairY.UI
         {
             var app = AppController.I;
             var m = Menus.Create();
-            m.Items.Item("Open CrosshairY", ShowFromTray);
+            m.Items.Item(L.T("Open CrosshairY"), ShowFromTray);
             m.Items.Sep();
-            m.Items.Item(app.CrosshairVisible ? "Hide crosshair" : "Show crosshair", app.ToggleVisible);
-            var xh = new ToolStripMenuItem("Crosshair") { ForeColor = Theme.Text };
-            foreach (var e in app.State.Library.OrderBy(x => x.Order).Take(30))
+            m.Items.Item(app.CrosshairVisible ? L.T("Hide crosshair") : L.T("Show crosshair"), app.ToggleVisible);
+
+            // crosshairs: favorites and recent first would be nice, but library order is what people arrange
+            var xh = new ToolStripMenuItem(L.T("Crosshair")) { ForeColor = Theme.Text };
+            var lib = app.State.Library.OrderBy(x => x.Order).ToList();
+            foreach (var e in lib.Take(25))
             {
                 var id = e.Id;
                 xh.DropDownItems.Item(e.Name, () => app.ApplyCrosshair(id), true, id == app.Profile.CrosshairId);
             }
+            if (lib.Count > 25) xh.DropDownItems.Item(L.T("More…"), () => { ShowFromTray(); Crosshairs.ShowSaved(app.Profile.CrosshairId); });
             if (xh.DropDownItems.Count == 0) xh.Enabled = false;
             m.Items.Add(xh);
-            var prof = new ToolStripMenuItem("Profile") { ForeColor = Theme.Text };
+
+            // weapon: the loadout first, then every gun of the current game
+            var active = app.ActiveCrosshair;
+            if (active != null && Recoil.HasRecoil(active.Layers))
+            {
+                var wm = new ToolStripMenuItem(L.T("Weapon")) { ForeColor = Theme.Text };
+                var cur = Recoil.IsOff(active.Layers) ? null : Recoil.CurrentWeapon(active.Layers);
+                foreach (var slot in app.Profile.RecoilSlots.ToList())
+                {
+                    var sl = slot;
+                    var pat = sl.Weapon == "off" ? null : Recoil.Find(sl.Weapon);
+                    if (pat == null && sl.Weapon != "off") continue;
+                    string label = (pat?.Name ?? L.T("Recoil off")) + (string.IsNullOrEmpty(sl.Key) ? "" : "   (" + KeyBinding.Display(sl.Key) + ")");
+                    wm.DropDownItems.Item(label, () => app.SelectRecoilSlot(sl));
+                }
+                if (wm.DropDownItems.Count > 0) wm.DropDownItems.Add(new ToolStripSeparator());
+                string game = cur?.Game ?? Recoil.CurrentWeapon(active.Layers)?.Game ?? Recoil.Games[0];
+                foreach (var w in Recoil.ForGame(game))
+                {
+                    var key = w.Key;
+                    wm.DropDownItems.Item(w.Name, () => app.SelectRecoilSlot(new RecoilSlot { Weapon = key }), true, cur != null && cur.Key == key);
+                }
+                m.Items.Add(wm);
+            }
+
+            var prof = new ToolStripMenuItem(L.T("Profile")) { ForeColor = Theme.Text };
             foreach (var p in app.State.Profiles)
             {
                 var id = p.Id;
                 prof.DropDownItems.Item(p.Name, () => app.ActivateProfile(id), true, id == app.State.Settings.ActiveProfileId);
             }
             m.Items.Add(prof);
-            m.Items.Item("Center crosshair", app.CenterPosition);
+            m.Items.Item(L.T("Center crosshair"), app.CenterPosition);
             m.Items.Sep();
-            m.Items.Item("Exit", ExitApp);
+            m.Items.Item(pendingUpdate != null ? string.Format(L.T("Update to {0}…"), pendingUpdate.Version) : L.T("Check for updates"), () =>
+            {
+                if (pendingUpdate != null) { var u = pendingUpdate; pendingUpdate = null; ShowFromTray(); ShowUpdate(u); }
+                else CheckForUpdates(true);
+            });
+            m.Items.Item(L.T("Exit"), ExitApp);
             return m;
         }
 
@@ -315,12 +428,14 @@ namespace CrosshairY.UI
                 Controls.Add(pill);
                 preview.Click += (s, e) => form.Crosshairs.ShowSaved(AppController.I.Profile.CrosshairId);
                 var tips = new ToolTip();
-                tips.SetToolTip(preview, "Current crosshair");
-                pill.MouseEnter += (s, e) => tips.SetToolTip(pill, "Toggle crosshair (" + KeyBinding.Display(AppController.I.Profile.ToggleKey) + ")");
+                tips.SetToolTip(preview, L.T("Current crosshair"));
+                pill.MouseEnter += (s, e) => tips.SetToolTip(pill, L.T("Toggle crosshair") + " (" + KeyBinding.Display(AppController.I.Profile.ToggleKey) + ")");
             }
 
             int BtnW => Theme.S(46);
             Rectangle BtnRect(int i) => new Rectangle(Width - BtnW * (3 - i), 0, BtnW, Height);
+
+            public Rectangle RectFor(string key) => key == "pill" ? pill.Bounds : key == "profile" ? profile.Bounds : key == "preview" ? preview.Bounds : Rectangle.Empty;
 
             protected override void OnLayout(LayoutEventArgs levent)
             {
@@ -406,9 +521,9 @@ namespace CrosshairY.UI
                         () => app.ActivateProfile(id), true, id == app.State.Settings.ActiveProfileId);
                 }
                 m.Items.Sep();
-                m.Items.Item("New profile…", () =>
+                m.Items.Item(L.T("New profile…"), () =>
                 {
-                    var name = InputDialog.Ask(MainForm.Instance, "New profile", "Profile name (e.g. the game it's for)");
+                    var name = InputDialog.Ask(MainForm.Instance, L.T("New profile"), L.T("Profile name (e.g. the game it's for)"));
                     if (name == null) return;
                     var np = app.Profile.Clone();
                     np.Name = name;
@@ -418,7 +533,7 @@ namespace CrosshairY.UI
                     app.ActivateProfile(np.Id);
                     MainForm.Instance.Navigate("profiles");
                 });
-                m.Items.Item("Manage profiles…", () => MainForm.Instance.Navigate("profiles"));
+                m.Items.Item(L.T("Manage profiles…"), () => MainForm.Instance.Navigate("profiles"));
                 m.Show(this, new Point(0, Height + Theme.S(4)));
             }
 
@@ -512,6 +627,13 @@ namespace CrosshairY.UI
             }
 
             bool Collapsed => Width < Theme.S(100);
+
+            public Rectangle RectFor(string key)
+            {
+                for (int i = 0; i < Top.Length; i++) if (Top[i].key == key) return TopRect(i);
+                for (int i = 0; i < Bottom.Length; i++) if (Bottom[i].key == key) return BottomRect(i);
+                return Rectangle.Empty;
+            }
             int RowH => Theme.S(40);
             Rectangle MenuRect => new Rectangle(Theme.S(8), Theme.S(10), Width - Theme.S(16), RowH);
             Rectangle TopRect(int i) => new Rectangle(Theme.S(8), Theme.S(58) + i * (RowH + Theme.S(4)), Width - Theme.S(16), RowH);
@@ -557,7 +679,7 @@ namespace CrosshairY.UI
                 else if (hot) Theme.FillRound(g, Theme.Surface, r, Theme.SF(8));
                 var c = active ? Theme.Text : hot ? Theme.Text : Theme.Blend(Theme.Text, Theme.Chrome, .14);
                 Theme.DrawIcon(g, glyph, Theme.Icon, c, new Rectangle(r.X + Theme.S(12), r.Y, Theme.S(20), r.Height));
-                if (!Collapsed) Theme.DrawText(g, label, active ? Theme.BodyMedium : Theme.Nav, c, new Rectangle(r.X + Theme.S(46), r.Y, r.Width - Theme.S(50), r.Height));
+                if (!Collapsed) Theme.DrawText(g, L.T(label), active ? Theme.BodyMedium : Theme.Nav, c, new Rectangle(r.X + Theme.S(46), r.Y, r.Width - Theme.S(50), r.Height));
             }
 
             protected override void OnPaint(PaintEventArgs e)

@@ -678,7 +678,63 @@ namespace CrosshairY.UI.Pages
                     Rebuild();
                 };
                 st.Controls.Add(featured);
+                BuildGallery(st);
                 st.ResumeLayout(true);
+            }
+
+            /// <summary>Community gallery: designs shared through GitHub (gallery/gallery.json in the repo).</summary>
+            void BuildGallery(StackPanel st)
+            {
+                st.Controls.Add(new CaptionLabel(Glyph.People, L.T("Community gallery")));
+                var share = new FlatButton(L.T("Share yours"), Glyph.Upload, ButtonKind.Secondary);
+                share.AutoSizeWidth();
+                share.Click += (s, e) =>
+                {
+                    var cur = App.ActiveCrosshair;
+                    if (cur == null) { MainForm.Instance.ShowToast(L.T("Select a crosshair to share first"), Glyph.Info); return; }
+                    if (!DarkDialog.Confirm(MainForm.Instance, L.T("Share to the community gallery"),
+                        string.Format(L.T("This opens a GitHub issue with the code for “{0}” filled in (you need a free GitHub account). Once it's reviewed, it appears here for everyone."), cur.Name), L.T("Open GitHub"))) return;
+                    try { System.Diagnostics.Process.Start(Gallery.SubmitUrl(cur)); } catch { }
+                };
+                var refresh = new FlatButton("", Glyph.Refresh, ButtonKind.Ghost) { Width = Theme.S(38), Height = Theme.S(38) };
+                refresh.Click += async (s, e) => { await Gallery.LoadAsync(force: true); if (!IsDisposed) Rebuild(); };
+                st.Controls.Add(new HStack(share, refresh) { Height = Theme.S(38) });
+
+                if (Gallery.Items == null)
+                {
+                    st.Controls.Add(new WrapLabel(L.T("Loading the gallery…"), Theme.Small, Theme.TextDim));
+                    Gallery.LoadAsync().ContinueWith(_ => { try { if (!IsDisposed && IsHandleCreated) BeginInvoke(new Action(Rebuild)); } catch { } });
+                    return;
+                }
+                if (Gallery.Items.Count == 0)
+                {
+                    st.Controls.Add(new WrapLabel(Gallery.Error != null ? L.T("Couldn't load the gallery. Check your connection and press refresh.") : L.T("No community designs yet — be the first to share one!"), Theme.Small, Theme.TextDim));
+                    return;
+                }
+                var lib = App.State.Library;
+                var grid = new CrosshairGrid { Style = TileStyle.Browse };
+                grid.Items = Gallery.Items.Select(g => new TileItem
+                {
+                    Id = "gallery:" + g.Id, Name = g.Name + (string.IsNullOrEmpty(g.Author) ? "" : "  ·  " + g.Author), Layers = g.Layers,
+                    CacheKey = "gallery:" + g.Id, Tag = g, Saved = lib.Any(x => x.Source == "gallery:" + g.Id)
+                }).ToList();
+                grid.ItemClicked += it =>
+                {
+                    var g = (GalleryItem)it.Tag;
+                    App.SetPreview(g.Layers);
+                    MainForm.Instance.ShowToast(string.Format(L.T("Previewing “{0}” — bookmark it to keep it"), g.Name), Glyph.Eye);
+                };
+                grid.BookmarkClicked += it =>
+                {
+                    var g = (GalleryItem)it.Tag;
+                    App.SetPreview(null);
+                    var en = lib.FirstOrDefault(x => x.Source == "gallery:" + g.Id)
+                        ?? App.State.Add(new CrosshairEntry { Name = g.Name, Layers = (List<object>)J.DeepClone(g.Layers), Source = "gallery:" + g.Id });
+                    App.ApplyCrosshair(en.Id);
+                    MainForm.Instance.ShowToast(string.Format(L.T("Saved and using “{0}”"), g.Name), Glyph.BookmarkFilled);
+                    Rebuild();
+                };
+                st.Controls.Add(grid);
             }
 
             Control QuickButton(string text, string glyph, bool tinted, Action click)

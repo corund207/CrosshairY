@@ -37,6 +37,25 @@ namespace CrosshairY.UI.Pages
                 Rebuild();
             };
             list.Controls.Add(newBtn);
+            var importBtn = new FlatButton(L.T("Import profile…"), Glyph.Download, ButtonKind.Ghost);
+            importBtn.Click += (s, e) =>
+            {
+                using (var d = new OpenFileDialog { Filter = L.T("CrosshairY profile or backup") + "|*.crosshairy;*.json|" + L.T("All files") + "|*.*" })
+                {
+                    if (d.ShowDialog(Main) != DialogResult.OK) return;
+                    try
+                    {
+                        int before = App.State.Profiles.Count;
+                        App.State.ImportAll(System.IO.File.ReadAllText(d.FileName));
+                        int added = App.State.Profiles.Count - before;
+                        if (added > 0) selectedId = App.State.Profiles.Last().Id;
+                        Main.ShowToast(added > 0 ? string.Format(L.T("{0} profile(s) imported"), added) : L.T("No new profiles in that file"), Glyph.Download);
+                        Rebuild();
+                    }
+                    catch (Exception ex) { DarkDialog.Info(Main, L.T("Couldn't import"), ex.Message); }
+                }
+            };
+            list.Controls.Add(importBtn);
             listPanel.Controls.Add(list);
             listPanel.Layout += (s, e) => list.SetBounds(listPanel.Padding.Left, listPanel.Padding.Top, listPanel.Width - listPanel.Padding.Horizontal, list.Height);
             editor.Stack.Inner = new Padding(Theme.S(12), Theme.S(8), Theme.S(28), Theme.S(28));
@@ -57,7 +76,7 @@ namespace CrosshairY.UI.Pages
         void Rebuild()
         {
             // profile list
-            while (list.Controls.Count > 1) { var c = list.Controls[1]; list.Controls.RemoveAt(1); c.Dispose(); }
+            while (list.Controls.Count > 2) { var c = list.Controls[2]; list.Controls.RemoveAt(2); c.Dispose(); }
             foreach (var p in App.State.Profiles)
             {
                 var prof = p;
@@ -121,6 +140,18 @@ namespace CrosshairY.UI.Pages
                 Rebuild();
             };
             actions.Controls.Add(del);
+            var export = new FlatButton(L.T("Export"), Glyph.Upload);
+            export.Click += (s, e) =>
+            {
+                using (var d = new SaveFileDialog { Filter = L.T("CrosshairY profile") + "|*.crosshairy;*.json", FileName = ShareDialog.MakeSafe(p.Name) + ".crosshairy" })
+                    if (d.ShowDialog(Main) == DialogResult.OK)
+                    {
+                        try { System.IO.File.WriteAllText(d.FileName, App.State.ExportProfile(p)); Main.ShowToast(L.T("Profile exported"), Glyph.Upload); }
+                        catch (Exception ex) { DarkDialog.Info(Main, L.T("Export failed"), ex.Message); }
+                    }
+            };
+            new ToolTip().SetToolTip(export, L.T("Save this profile (keybinds, loadout, position) with the crosshairs it uses, to move it to another PC or share it"));
+            actions.Controls.Add(export);
             info.Body.Controls.Add(actions);
             st.Controls.Add(info);
 

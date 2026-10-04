@@ -23,11 +23,15 @@
 - **Designer** — layers panel, tool dock, zoomable pixel canvas with drag-to-move, collapsible inspector, undo/redo and live on-screen preview.
 - **Animations** — fire, aim or autoplay triggers; single press or hold; reset / reverse / pause on release; stages, easing, loop and alternate.
 - **Recoil tracking** — crosshairs that follow a weapon's spray while you hold fire, with a weapon picker covering every gun in VALORANT, CS2, Rust and Apex Legends (see below).
-- **Library** — Discover, Browse (50+ built-in designs) and Saved tabs, categories, favorites, search and sorting.
-- **Profiles** — per-game crosshair, keybinds, position and size, switched automatically when a linked game is focused.
-- **Keybinds** — global toggle, aim and fire keys, hide/show/swap while aiming, reload, next/previous crosshair or weapon, position nudging and crosshair shortcuts — keyboard, mouse or controller (XInput).
+- **Spray pattern editor** — drag, add and remove bullets on a grid, test the spray at its real fire rate, add guns or games, or fix a built-in pattern.
+- **Hit markers** — hit marker and kill flash reactions (X, ring or brackets) on their own keys or on every shot.
+- **Library** — Discover, Browse (100+ built-in designs) and Saved tabs, a community gallery, categories, favorites, search and sorting.
+- **Profiles** — per-game crosshair, keybinds, recoil loadout, position and size, switched automatically when a linked game is focused; export a profile to move or share it.
+- **Keybinds** — global toggle, aim and fire keys, hide/show/swap while aiming, reload, next/previous crosshair or weapon, hit/kill reactions, position nudging and crosshair shortcuts — keyboard, mouse or controller (XInput).
 - **Display** — monitor selection, offsets and saved positions, size and opacity, only-show-in-game, hide from recordings, Fullscreen Assist mode and a Force Borderless tool.
-- **Randomizer**, PNG/JSON export, backup and restore, tray mode and launch on startup.
+- **Auto-update** — checks GitHub about once a day, verifies the download's SHA-256 and swaps itself in place.
+- **Languages** — English, Español, Deutsch, Français and Português (Brasil).
+- **Randomizer**, first-run tour, PNG/JSON export, full backup and restore, a tray menu with crosshair, weapon and profile switching, and launch on startup.
 
 <p align="center">
   <img src="docs/images/browse.png" alt="Browse" width="49%">
@@ -59,7 +63,7 @@ Recoil crosshairs are timed animations: while you hold **Fire**, a tracker (the 
 - **91 weapons**: VALORANT (18), Counter-Strike 2 (34), Rust (15) and Apex Legends (24).
 - **Accurate first shots** per weapon — the tracker stays centered for the bullets that land dead center before recoil kicks in.
 - Fire rate, scale and accurate shots can be tuned per crosshair.
-- **Recoil loadout** (Keybinds page) — pick the guns you use and give each one a key, ideally the same keys as your in-game weapon slots. Pressing it switches the active recoil crosshair to that gun's pattern; a **Recoil off** slot (knife / utility) stops the tracker. **Quick setup** fills in common VALORANT, CS2, Rust and Apex loadouts, and Next / Previous Weapon cycle through your loadout.
+- **Recoil loadout** (Keybinds page) — pick the guns you use and give each one a key, ideally the same keys as your in-game weapon slots. Pressing it switches the active recoil crosshair to that gun's pattern (with its own **scale** and, optionally, its own **crosshair**); a **Recoil off** slot (knife / utility) stops the tracker. **Quick setup** fills in common VALORANT, CS2, Rust and Apex loadouts, and Next / Previous Weapon cycle through your loadout.
 
 <img src="docs/images/loadout.png" alt="Recoil loadout keybinds" width="100%">
 

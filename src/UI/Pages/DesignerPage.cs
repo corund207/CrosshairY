@@ -979,7 +979,7 @@ namespace CrosshairY.UI.Pages
 
         static readonly string[] EaseValues = Easing.Names;
         static readonly HashSet<string> TimingKeys = new HashSet<string> { "duration", "startDelay", "easing", "mouseButton", "pressType", "releaseBehavior", "direction", "loop", "version", "stages", "triggerTimelines", "tShapeWhenFiring", "firingOffset", "bloomDirection", "finalOpacity", "recoilPattern",
-            "recoilScale", "recoilRpm", "recoilStable", "recoilFx", "recoilFxEnd", "recoilInvert", "recoilMirror", "recoilLag", "recoilOff" };
+            "recoilScale", "recoilRpm", "recoilStable", "recoilFx", "recoilFxEnd", "recoilInvert", "recoilMirror", "recoilLag", "recoilOff", "recoilFactor" };
 
         Dictionary<string, object> Fo() => J.EnsureObj(L, "firingOptions");
 
@@ -1255,7 +1255,24 @@ namespace CrosshairY.UI.Pages
                 MainForm.Instance.ShowToast("Recoil pattern applied — hold left mouse on the canvas to test", Glyph.Recoil);
                 BuildProps();
             };
-            cur.Controls.Add(new HStack(apply));
+            var editPattern = new FlatButton(isTracker ? Core.L.T("Edit pattern…") : Core.L.T("New pattern…"), Glyph.Edit, ButtonKind.Secondary);
+            editPattern.Click += (s, e) =>
+            {
+                string before = isTracker ? current.Key : null;
+                var made = PatternEditorDialog.ShowFor(Main, isTracker ? current : null, newPattern: !isTracker);
+                if (made == null) return;
+                // re-point this design's trackers (the editor already updated saved crosshairs)
+                foreach (var layer in layers.OfType<Dictionary<string, object>>())
+                {
+                    var fo = J.Obj(layer, "firingOptions");
+                    string k = J.Str(fo, "recoilPattern");
+                    if (layer == L && !isTracker) Recoil.Apply(layer, made, scale.Value);
+                    else if (k != null && (k == before || k == made.Key)) Recoil.Apply(layer, made, J.Num(fo, "recoilScale", 1));
+                }
+                Changed(); Commit();
+                BuildProps();
+            };
+            cur.Controls.Add(new HStack(apply, editPattern));
             Note("Accurate first shots = bullets that land dead center before the recoil kicks in (each gun has its own default). Trail delay makes this layer follow a few shots behind (for trails). Pull guide moves opposite to the spray — the way to drag your mouse. ★ = hand-tuned pattern. Tip: bind Next / Previous Weapon on the Keybinds page to switch guns in game.");
         }
 

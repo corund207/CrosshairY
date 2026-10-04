@@ -18,7 +18,7 @@ namespace CrosshairY.Render
             "duration", "startDelay", "easing", "mouseButton", "pressType", "releaseBehavior", "direction", "loop",
             "version", "stages", "triggerTimelines", "tShapeWhenFiring", "firingOffset", "bloomDirection", "finalOpacity",
             "trigger", "name", "id", "label",
-            "recoilPattern", "recoilScale", "recoilRpm", "recoilStable", "recoilFx", "recoilFxEnd", "recoilInvert", "recoilMirror", "recoilLag", "recoilOff"
+            "recoilPattern", "recoilScale", "recoilRpm", "recoilStable", "recoilFx", "recoilFxEnd", "recoilInvert", "recoilMirror", "recoilLag", "recoilOff", "recoilFactor"
         };
 
         readonly Stopwatch clock = Stopwatch.StartNew();

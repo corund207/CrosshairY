@@ -16,7 +16,7 @@ namespace CrosshairY.UI.Pages
         readonly ScrollHost scroll = new ScrollHost { Dock = DockStyle.Fill };
         bool selfEdit;
 
-        public override string Title => "Keybinds";
+        public override string Title => L.T("Keybinds");
 
         public KeybindsPage()
         {
@@ -45,8 +45,8 @@ namespace CrosshairY.UI.Pages
             foreach (Control c in st.Controls.Cast<Control>().ToList()) { st.Controls.Remove(c); c.Dispose(); }
             var p = App.Profile;
 
-            st.Controls.Add(new DarkLabel("Configure Keybinds", Theme.H1) { Height = Theme.S(34) });
-            st.Controls.Add(new WrapLabel("Toggle the crosshair, react to aiming and firing, or switch crosshairs with any key, mouse button or controller button. Keybinds belong to the active profile (" + p.Name + "). Click a binding, then press the input; Esc cancels, Backspace clears.", Theme.Nav, Theme.TextDim));
+            st.Controls.Add(new DarkLabel(L.T("Configure Keybinds"), Theme.H1) { Height = Theme.S(34) });
+            st.Controls.Add(new WrapLabel(string.Format(L.T("Toggle the crosshair, react to aiming and firing, or switch crosshairs with any key, mouse button or controller button. Keybinds belong to the active profile ({0}). Click a binding, then press the input; Esc cancels, Backspace clears."), p.Name), Theme.Nav, Theme.TextDim));
             st.Controls.Add(new Panel { Height = Theme.S(6), BackColor = Theme.Bg });
 
             st.Controls.Add(new CaptionLabel(Glyph.Keyboard, "Action keybinds"));
@@ -96,6 +96,11 @@ namespace CrosshairY.UI.Pages
             actions.AddRow(Glyph.Left, "Previous Crosshair", null, Cap(p.PrevKey, false, v => p.PrevKey = v), Cap(p.PrevPad, true, v => p.PrevPad = v));
             actions.AddRow(Glyph.Recoil, "Next Weapon (recoil)", null, Cap(p.NextWeaponKey, false, v => p.NextWeaponKey = v), Cap(p.NextWeaponPad, true, v => p.NextWeaponPad = v));
             actions.AddRow(Glyph.Recoil, "Previous Weapon (recoil)", null, Cap(p.PrevWeaponKey, false, v => p.PrevWeaponKey = v), Cap(p.PrevWeaponPad, true, v => p.PrevWeaponPad = v));
+            var reactSettings = new FlatButton(L.T("Style…"), Glyph.Settings, ButtonKind.Ghost) { Height = Theme.S(36) };
+            reactSettings.AutoSizeWidth();
+            reactSettings.Click += (s, e) => { Main.Navigate("settings"); (Main.CurrentPage as SettingsPage)?.ShowCategory("reactions"); };
+            actions.AddRow(Glyph.Target, "Hit Marker", reactSettings, Cap(p.HitKey, false, v => p.HitKey = v), Cap(p.HitPad, true, v => p.HitPad = v));
+            actions.AddRow(Glyph.Fire, "Kill Flash", null, Cap(p.KillKey, false, v => p.KillKey = v), Cap(p.KillPad, true, v => p.KillPad = v));
             st.Controls.Add(actions);
             if (!App.State.Settings.ControllerSupport)
             {
@@ -106,19 +111,56 @@ namespace CrosshairY.UI.Pages
             // ---------------- recoil loadout ----------------
             st.Controls.Add(new Panel { Height = Theme.S(10), BackColor = Theme.Bg });
             st.Controls.Add(new CaptionLabel(Glyph.Recoil, "Recoil loadout"));
-            st.Controls.Add(new WrapLabel("Pick the guns you use and give each one a key. Bind them to the same keys as your in-game weapon slots (1, 2, 3…) and the recoil tracker switches pattern when you swap guns. Next / Previous Weapon cycle through this list. Works with whichever recoil crosshair is active.", Theme.Small, Theme.TextDim));
+            st.Controls.Add(new WrapLabel(L.T("Pick the guns you use and give each one a key. Bind them to the same keys as your in-game weapon slots (1, 2, 3…) and the recoil tracker switches pattern when you swap guns. Each gun can have its own scale and its own crosshair. Next / Previous Weapon cycle through this list."), Theme.Small, Theme.TextDim));
             var loadout = new KeyTable("Weapon");
+            var tips = new ToolTip();
             foreach (var sl in p.RecoilSlots.ToList())
             {
                 var slot = sl;
                 var pat = slot.Weapon == "off" ? null : Recoil.Find(slot.Weapon);
-                string label = slot.Weapon == "off" ? "Recoil off (knife / utility)" : pat != null ? pat.Name + "  ·  " + pat.Game : "Unknown weapon";
-                var change = new FlatButton("Change", Glyph.Swap, ButtonKind.Secondary) { Height = Theme.S(36) };
-                change.AutoSizeWidth();
+                string label = slot.Weapon == "off" ? L.T("Recoil off (knife / utility)") : pat != null ? pat.Name + "  ·  " + pat.Game : L.T("Unknown weapon");
+                // per-weapon crosshair
+                var xh = App.State.Find(slot.CrosshairId);
+                var pick = new FlatButton(xh == null ? "" : "", xh == null ? Glyph.Crosshair : null, xh == null ? ButtonKind.Ghost : ButtonKind.Secondary) { Width = Theme.S(40), Height = Theme.S(36) };
+                if (xh != null) pick.Paint += (s, e) =>
+                {
+                    var bmp = Thumbnails.Actual(xh.Id + ":" + xh.Updated.Ticks, xh.Layers, pick.Width - 6, pick.Height - 6);
+                    e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                    e.Graphics.DrawImageUnscaled(bmp, 3, 3);
+                };
+                tips.SetToolTip(pick, xh == null ? L.T("Crosshair for this weapon: keep the current one (click to choose)") : L.T("Crosshair for this weapon:") + " " + xh.Name);
+                pick.Click += (s, e) =>
+                {
+                    var m = Menus.Create();
+                    m.Items.Item(L.T("Choose crosshair…"), () =>
+                    {
+                        var id = CrosshairPickerDialog.Pick(Main, L.T("Crosshair for") + " " + label, slot.CrosshairId);
+                        if (string.IsNullOrEmpty(id)) return;
+                        slot.CrosshairId = id;
+                        Notify();
+                        Build();
+                    });
+                    m.Items.Item(L.T("Keep the current crosshair"), () => { slot.CrosshairId = ""; Notify(); Build(); }, xh != null);
+                    m.Show(pick, new Point(0, pick.Height + 2));
+                };
+                // per-weapon scale
+                var scale = new FieldBox(Glyph.Fit) { Step = 0.05, Decimals = 2, Minimum = 0.2, Maximum = 5, Width = Theme.S(92), Height = Theme.S(36), Enabled = pat != null };
+                scale.Value = slot.Scale;
+                tips.SetToolTip(scale, L.T("Recoil scale for this weapon (multiplies the crosshair's own scale)"));
+                scale.ValueCommitted += (s, e) =>
+                {
+                    slot.Scale = scale.Value;
+                    Notify();
+                    // re-apply straight away if this gun is the one in use
+                    var act = App.ActiveCrosshair;
+                    if (act != null && pat != null && !Recoil.IsOff(act.Layers) && Recoil.CurrentWeapon(act.Layers)?.Key == pat.Key) App.SelectRecoilSlot(slot);
+                };
+                var change = new FlatButton("", Glyph.Swap, ButtonKind.Secondary) { Width = Theme.S(40), Height = Theme.S(36) };
+                tips.SetToolTip(change, L.T("Change weapon"));
                 change.Click += (s, e) => ShowWeaponMenu(change, w => { slot.Weapon = w; Notify(); Build(); });
                 var remove = new FlatButton("", Glyph.Delete, ButtonKind.Ghost) { Width = Theme.S(36), Height = Theme.S(36) };
                 remove.Click += (s, e) => { p.RecoilSlots.Remove(slot); Notify(); Build(); };
-                var extra = new HStack(change, remove) { Width = change.Width + remove.Width + Theme.S(8), Height = Theme.S(36) };
+                var extra = new HStack(pick, scale, change, remove) { Width = pick.Width + scale.Width + change.Width + remove.Width + Theme.S(24), Height = Theme.S(36) };
                 loadout.AddRow(slot.Weapon == "off" ? Glyph.Close : Glyph.Recoil, label, extra,
                     Cap(slot.Key, false, v => slot.Key = v), Cap(slot.PadKey, true, v => slot.PadKey = v));
             }
@@ -133,7 +175,10 @@ namespace CrosshairY.UI.Pages
             var quick = new FlatButton("Quick setup", Glyph.Lightning, ButtonKind.Ghost) { Height = Theme.S(40) };
             quick.AutoSizeWidth();
             quick.Click += (s, e) => ShowQuickSetup(quick, p);
-            var footer = new HStack(addSlot, quick) { Height = Theme.S(40), Width = addSlot.Width + quick.Width + Theme.S(8) };
+            var patterns = new FlatButton(L.T("Edit patterns…"), Glyph.Edit, ButtonKind.Ghost) { Height = Theme.S(40) };
+            patterns.AutoSizeWidth();
+            patterns.Click += (s, e) => { PatternEditorDialog.ShowFor(Main, null); Build(); };
+            var footer = new HStack(addSlot, quick, patterns) { Height = Theme.S(40), Width = addSlot.Width + quick.Width + patterns.Width + Theme.S(16) };
             loadout.AddFooter(footer);
             st.Controls.Add(loadout);
 
@@ -184,7 +229,12 @@ namespace CrosshairY.UI.Pages
                 m.Items.Add(gm);
             }
             m.Items.Sep();
-            m.Items.Item("Recoil off (knife / utility)", () => picked("off"));
+            m.Items.Item(L.T("New custom pattern…"), () =>
+            {
+                var made = PatternEditorDialog.ShowFor(Main, null, newPattern: true);
+                if (made != null) picked(made.Key);
+            });
+            m.Items.Item(L.T("Recoil off (knife / utility)"), () => picked("off"));
             m.Show(anchor, new Point(0, anchor.Height + 2));
         }
 
@@ -202,7 +252,7 @@ namespace CrosshairY.UI.Pages
             var m = Menus.Create();
             void Set(params (string weapon, string key)[] slots)
             {
-                if (p.RecoilSlots.Count > 0 && !DarkDialog.Confirm(Main, "Replace loadout", "Replace your current recoil loadout?", "Replace")) return;
+                if (p.RecoilSlots.Count > 0 && !DarkDialog.Confirm(Main, L.T("Replace loadout"), L.T("Replace your current recoil loadout?"), L.T("Replace"))) return;
                 p.RecoilSlots = slots.Select(s => new RecoilSlot { Weapon = s.weapon, Key = s.key }).ToList();
                 Notify();
                 Build();
@@ -289,7 +339,7 @@ namespace CrosshairY.UI.Pages
                     g.DrawLine(p, Col2, 0, Col2, HeaderH + rows.Count * RowH);
                     for (int i = 1; i <= rows.Count; i++) if (i < rows.Count || footer != null) g.DrawLine(p, 0, HeaderH + i * RowH, Width, HeaderH + i * RowH);
                 }
-                Theme.DrawText(g, header.ToUpperInvariant(), Theme.Caption, Theme.Text, new Rectangle(Theme.S(28), 0, Col1, HeaderH));
+                Theme.DrawText(g, L.Upper(header), Theme.Caption, Theme.Text, new Rectangle(Theme.S(28), 0, Col1, HeaderH));
                 Theme.DrawIcon(g, Glyph.Monitor, Theme.Icon, Theme.TextDim, new Rectangle(Col1, 0, Col2 - Col1, HeaderH));
                 Theme.DrawIcon(g, Glyph.Gamepad, Theme.Icon, Theme.TextDim, new Rectangle(Col2, 0, Width - Col2, HeaderH));
                 for (int i = 0; i < rows.Count; i++)
@@ -314,7 +364,7 @@ namespace CrosshairY.UI.Pages
                         x += Theme.S(36);
                     }
                     int right = row.extra != null ? row.extra.Left - Theme.S(10) : Col1 - Theme.S(10);
-                    Theme.DrawText(g, row.label, Theme.H3, Theme.Text, new Rectangle(x, y, right - x, RowH));
+                    Theme.DrawText(g, L.T(row.label), Theme.H3, Theme.Text, new Rectangle(x, y, right - x, RowH));
                 }
             }
         }

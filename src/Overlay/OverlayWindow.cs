@@ -165,6 +165,12 @@ namespace CrosshairY.Overlay
         bool visible = true;
         double opacity = 1;
         bool placementChanged = true;
+        // reaction (hit marker / kill flash) drawn on top of the crosshair for a short time
+        readonly System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
+        Func<double, List<object>> reactBuild;
+        long reactStart;
+        int reactMs = 1;
+        bool reactChanged;
 
         public OverlayWindow Window => window;
         /// <summary>Target redraw rate while animating.</summary>
@@ -214,6 +220,13 @@ namespace CrosshairY.Overlay
             wake.Set();
         }
 
+        /// <summary>Plays a short reaction: build(t) returns the extra layers for progress t (0 → 1) over ms milliseconds.</summary>
+        public void React(Func<double, List<object>> build, int ms)
+        {
+            lock (stateLock) { reactBuild = build; reactStart = clock.ElapsedMilliseconds; reactMs = Math.Max(1, ms); reactChanged = true; }
+            wake.Set();
+        }
+
         public void ResetAnimations()
         {
             animatorOps.Enqueue(a => a.Reset());
@@ -224,7 +237,8 @@ namespace CrosshairY.Overlay
         {
             Native.timeBeginPeriod(1);
             var animator = new Animator();
-            int fixedHalf = 0;
+            int fixedHalf = 0, reactHalf = 0;
+            bool lastReacting = false;
             RenderResult last = null;
             bool lastAnimating = false;
             bool timeDependent = false;
@@ -236,11 +250,13 @@ namespace CrosshairY.Overlay
                 while (running)
                 {
                     List<object> curLayers; bool lc, pc, vis; Rectangle mon; int ox, oy; double sc, op;
+                    Func<double, List<object>> rb; long rs; int rms; bool rc;
                     lock (stateLock)
                     {
                         curLayers = layers; lc = layersChanged; pc = placementChanged; vis = visible;
                         mon = monitor; ox = offsetX; oy = offsetY; sc = scale; op = opacity;
                         layersChanged = false; placementChanged = false;
+                        rb = reactBuild; rs = reactStart; rms = reactMs; rc = reactChanged; reactChanged = false;
                     }
                     if (lc)
                     {
@@ -248,16 +264,32 @@ namespace CrosshairY.Overlay
                         fixedHalf = curLayers == null ? 0 : CrosshairRenderer.ComputeCanvasHalf(curLayers, sc);
                     }
                     while (animatorOps.TryDequeue(out var op2)) op2(animator);
+                    if ((rc || lc) && rb != null)
+                    {
+                        try { reactHalf = Math.Max(CrosshairRenderer.ComputeCanvasHalf(rb(0), sc), CrosshairRenderer.ComputeCanvasHalf(rb(1), sc)); }
+                        catch { reactHalf = 0; }
+                    }
+                    double rt = rb == null ? 2 : (clock.ElapsedMilliseconds - rs) / (double)rms;
+                    bool reacting = rb != null && rt < 1 && curLayers != null;
+                    int half = reacting ? Math.Max(fixedHalf, reactHalf) : fixedHalf;
 
                     bool animating = false;
                     byte alpha = (byte)Math.Round(Math.Max(0, Math.Min(1, op)) * 255);
                     if (!vis || curLayers == null) alpha = 0;
                     List<object> frameLayers = curLayers == null ? null : animator.Evaluate(out animating);
-                    bool needRender = lc || ((animating || timeDependent || animating != lastAnimating) && alpha > 0) || (last == null && curLayers != null);
+                    if (reacting)
+                    {
+                        frameLayers = new List<object>(frameLayers);
+                        try { frameLayers.AddRange(rb(Math.Max(0, rt))); } catch { }
+                        animating = true;
+                    }
+                    bool needRender = lc || ((animating || timeDependent || animating != lastAnimating) && alpha > 0) || (last == null && curLayers != null)
+                        || (reacting != lastReacting && alpha > 0);
+                    lastReacting = reacting;
                     if (curLayers != null && needRender && (alpha > 0 || lc))
                     {
                         RenderResult r;
-                        try { r = CrosshairRenderer.Render(frameLayers, sc, sw.ElapsedMilliseconds, fixedHalf); }
+                        try { r = CrosshairRenderer.Render(frameLayers, sc, sw.ElapsedMilliseconds, half); }
                         catch { r = null; }
                         if (r != null)
                         {

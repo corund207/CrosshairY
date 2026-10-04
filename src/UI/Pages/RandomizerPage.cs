@@ -130,7 +130,14 @@ namespace CrosshairY.UI.Pages
             scroll.Stack.Spacing = Theme.S(14);
             Controls.Add(scroll);
             var st = scroll.Stack;
-            st.Controls.Add(new DarkLabel("Help", Theme.H1) { Height = Theme.S(34) });
+            st.Controls.Add(new DarkLabel(L.T("Help"), Theme.H1) { Height = Theme.S(34) });
+            var tour = new FlatButton(L.T("Take the tour"), Glyph.Compass, ButtonKind.Primary);
+            tour.AutoSizeWidth();
+            tour.Click += (s, e) => Tour.Start(MainForm.Instance);
+            var updates = new FlatButton(L.T("Check for updates"), Glyph.Refresh, ButtonKind.Secondary);
+            updates.AutoSizeWidth();
+            updates.Click += (s, e) => MainForm.Instance.CheckForUpdates(true);
+            st.Controls.Add(new HStack(tour, updates) { Height = Theme.S(38) });
             Topic(Glyph.Monitor, "My crosshair doesn't show in a game",
                 "Overlays can't draw over true exclusive fullscreen. Switch the game to Borderless or Windowed Fullscreen, or use Settings › Display › Force Borderless Fullscreen. Many DX9/DX12 games in “fullscreen” still work thanks to Windows fullscreen optimizations; try Fullscreen Assist Mode if the crosshair disappears when the game takes focus.");
             Topic(Glyph.Keyboard, "Keybinds don't work in a game",
@@ -139,6 +146,10 @@ namespace CrosshairY.UI.Pages
                 "Press Import (Ctrl+I) and paste: a Crosshair X share code or link (e.g. xe4lbu6zh8 or crosshairx.gg/s/xe4lbu6zh8), a VALORANT profile code (0;P;…), a CS2/CS:GO code (CSGO-… or CS…), a CrosshairY code (CXY1-…) or crosshair JSON. Crosshair X codes are downloaded from the same public share service crosshairx.gg uses.");
             Topic(Glyph.Recoil, "Recoil tracking crosshairs",
                 "Recoil crosshairs are timed animations: while you hold Fire, a layer walks along a weapon's spray pattern and snaps back when you let go. Browse › Recoil Tracking has ready-made ones, and the Designer's Animate tab can apply a pattern to any layer. Patterns are approximate; tune the scale for your resolution and FOV. CrosshairY never reads game memory.");
+            Topic(Glyph.Target, "Hit markers",
+                "An overlay can't see what happens inside a game, so hit markers and kill flashes play when you press their keys (Keybinds page) or on every shot (Settings › Hit Markers).");
+            Topic(Glyph.Edit, "Custom spray patterns",
+                "Keybinds › Recoil loadout › Edit patterns (or the Designer's Recoil Pattern section) opens the pattern editor. Drag the dots, test the spray at its real fire rate, and save. Saving under a built-in weapon's name replaces its pattern; you can reset it any time.");
             Topic(Glyph.Crosshair, "Centering",
                 "The crosshair is drawn on the exact center pixel of the selected monitor in physical pixels. If a game's own center differs by a pixel, nudge it in Settings › Position & Size or set Position Keybinds.");
             Topic(Glyph.Info, "About",
@@ -150,7 +161,7 @@ namespace CrosshairY.UI.Pages
             var card = new SettingsCard();
             var row = new SettingRow(glyph, title, null, null) { Height = Theme.S(56) };
             card.Add(row);
-            var text = new WrapLabel(body, Theme.Body, Theme.TextDim) { BackColor = Theme.Surface, Margin = new Padding(Theme.S(68), 0, Theme.S(20), Theme.S(18)) };
+            var text = new WrapLabel(L.T(body), Theme.Body, Theme.TextDim) { BackColor = Theme.Surface, Margin = new Padding(Theme.S(68), 0, Theme.S(20), Theme.S(18)) };
             card.Rows.Controls.Add(text);
             scroll.Stack.Controls.Add(card);
         }

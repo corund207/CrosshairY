@@ -24,15 +24,16 @@ namespace CrosshairY.UI.Pages
         {
             ("all", "All", Glyph.AllApps), ("interface", "Interface", Glyph.Display), ("display", "Display", Glyph.Monitor),
             ("position", "Position & Size", Glyph.Move), ("startup", "Startup", Glyph.Rocket), ("performance", "Performance", Glyph.Lightning),
-            ("input", "Input", Glyph.Gamepad), ("profiles", "Profiles", Glyph.People), ("actions", "Actions", Glyph.Wrench),
+            ("input", "Input", Glyph.Gamepad), ("reactions", "Hit Markers", Glyph.Target), ("profiles", "Profiles", Glyph.People),
+            ("updates", "Updates", Glyph.Refresh), ("actions", "Backup & Data", Glyph.Wrench),
         };
 
-        public override string Title => "Settings";
+        public override string Title => L.T("Settings");
 
         public SettingsPage()
         {
-            tabs.Tabs.Add(new TabBar.Tab { Text = "General", Glyph = Glyph.Settings });
-            tabs.Tabs.Add(new TabBar.Tab { Text = "Recording / Streaming", Glyph = Glyph.Video });
+            tabs.Tabs.Add(new TabBar.Tab { Text = L.T("General"), Glyph = Glyph.Settings });
+            tabs.Tabs.Add(new TabBar.Tab { Text = L.T("Recording / Streaming"), Glyph = Glyph.Video });
             var catPanel = new Panel { Dock = DockStyle.Left, Width = Theme.S(250), BackColor = Theme.Bg };
             var catScroll = new ScrollHost { Dock = DockStyle.Fill, BackColor = Theme.Bg };
             catScroll.Stack.BackColor = Theme.Bg;
@@ -41,8 +42,8 @@ namespace CrosshairY.UI.Pages
             catPanel.Controls.Add(catScroll);
             catPanel.Paint += (s, e) => { using (var p = new Pen(Theme.Border)) e.Graphics.DrawLine(p, catPanel.Width - 1, 0, catPanel.Width - 1, catPanel.Height); };
             cats.BackColor = Theme.Bg;
-            cats.Items.Add(new CategoryList.Item { Text = "Categories", Header = true });
-            foreach (var c in Categories) cats.Items.Add(new CategoryList.Item { Key = c.key, Text = c.text, Glyph = c.glyph });
+            cats.Items.Add(new CategoryList.Item { Text = L.T("Categories"), Header = true });
+            foreach (var c in Categories) cats.Items.Add(new CategoryList.Item { Key = c.key, Text = L.T(c.text), Glyph = c.glyph });
             cats.SelectedKey = "all";
             catPanel.Layout += (s, e) => { cats.Width = catPanel.Width - Theme.S(36); cats.Refresh2(); };
             scroll.Stack.Inner = new Padding(Theme.S(34), Theme.S(18), Theme.S(40), Theme.S(40));
@@ -74,7 +75,7 @@ namespace CrosshairY.UI.Pages
         void Caption(string glyph, string text)
         {
             scroll.Stack.Controls.Add(new Panel { Height = Theme.S(8), BackColor = Theme.Bg });
-            scroll.Stack.Controls.Add(new CaptionLabel(glyph, text));
+            scroll.Stack.Controls.Add(new CaptionLabel(glyph, L.T(text)));
         }
 
         void EditedProfile()
@@ -99,7 +100,9 @@ namespace CrosshairY.UI.Pages
                 if (all || k == "startup") BuildStartup();
                 if (all || k == "performance") BuildPerformance();
                 if (all || k == "input") BuildInput();
+                if (all || k == "reactions") BuildReactions();
                 if (all || k == "profiles") BuildProfiles();
+                if (all || k == "updates") BuildUpdates();
                 if (all || k == "actions") BuildActions();
             }
             st.ResumeLayout(true);
@@ -112,12 +115,35 @@ namespace CrosshairY.UI.Pages
             Caption(Glyph.Display, "Interface");
             var card = new SettingsCard();
             var close = new Dropdown { Width = Theme.S(220) };
-            close.Items.AddRange(new object[] { "Minimize to tray", "Exit CrosshairY" });
+            close.Items.AddRange(new object[] { L.T("Minimize to tray"), L.T("Exit CrosshairY") });
             close.SelectedIndex = s.CloseToTray ? 0 : 1;
             close.SelectedIndexChanged += (o, e) => { s.CloseToTray = close.SelectedIndex == 0; App.State.MarkSettingsChanged(); };
             card.Add(new SettingRow(Glyph.ChromeClose, "Close Button", "What happens when you close the window", close));
             card.Add(new SettingRow(Glyph.News, "Notifications", "Show a notification when toggling or switching crosshairs and profiles", Toggle(s.ShowTrayNotifications, v => s.ShowTrayNotifications = v)));
             card.Add(new SettingRow(Glyph.Hamburger, "Compact Sidebar", "Show only icons in the navigation sidebar", Toggle(s.SidebarCollapsed, v => { s.SidebarCollapsed = v; MainForm.Instance.ApplySidebarWidth(); })));
+            var langs = L.Languages;
+            var lang = new Dropdown { Width = Theme.S(220) };
+            foreach (var l in langs) lang.Items.Add(l.Name);
+            lang.SelectedIndex = Math.Max(0, Array.FindIndex(langs, l => l.Code == s.Language));
+            lang.SelectedIndexChanged += (o, e) =>
+            {
+                string code = langs[lang.SelectedIndex].Code;
+                if (code == s.Language) return;
+                s.Language = code;
+                App.State.MarkSettingsChanged();
+                L.Use(code);
+                if (DarkDialog.Confirm(Main, L.T("Language"), L.T("Restart CrosshairY now to switch the language?"), L.T("Restart")))
+                {
+                    App.State.SaveNow();
+                    try { Process.Start(new ProcessStartInfo(Application.ExecutablePath, "--updated") { UseShellExecute = false }); } catch { }
+                    MainForm.Instance.ExitApp();
+                }
+            };
+            card.Add(new SettingRow(Glyph.Globe, "Language", "Translations are community-made; anything untranslated stays in English", lang));
+            var tour = new FlatButton(L.T("Take the tour"), Glyph.Compass, ButtonKind.Secondary);
+            tour.AutoSizeWidth();
+            tour.Click += (o, e) => Tour.Start(MainForm.Instance);
+            card.Add(new SettingRow(Glyph.Compass, "Tour", "A quick walk through the main parts of CrosshairY", tour));
             scroll.Stack.Controls.Add(card);
         }
 
@@ -272,6 +298,63 @@ namespace CrosshairY.UI.Pages
             scroll.Stack.Controls.Add(card);
         }
 
+        void BuildReactions()
+        {
+            var s = App.State.Settings;
+            Caption(Glyph.Target, "Hit Markers");
+            var card = new SettingsCard();
+            card.Add(new SettingRow(Glyph.Fire, "Hit Marker on Every Shot", "Flash a hit marker each time you press Fire. Or bind Hit Marker / Kill Flash keys on the Keybinds page", Toggle(s.HitOnFire, v => s.HitOnFire = v)));
+            var style = new Dropdown { Width = Theme.S(220) };
+            foreach (var n in Reactions.StyleNames) style.Items.Add(L.T(n));
+            style.SelectedIndex = Math.Max(0, Array.IndexOf(Reactions.Styles, s.HitStyle));
+            style.SelectedIndexChanged += (o, e) => { s.HitStyle = Reactions.Styles[style.SelectedIndex]; App.State.MarkSettingsChanged(); App.React(false); };
+            card.Add(new SettingRow(Glyph.Shape, "Style", "How the reaction looks around your crosshair", style));
+            var hit = new ColorButton { Color = ColorUtil.Parse(s.HitColor, Color.White) };
+            hit.ColorCommitted += (o, e) => { s.HitColor = hit.Hex; App.State.MarkSettingsChanged(); App.React(false); };
+            card.Add(new SettingRow(Glyph.Brush, "Hit Color", "Color of the hit marker", hit));
+            var kill = new ColorButton { Color = ColorUtil.Parse(s.KillColor, Color.Red) };
+            kill.ColorCommitted += (o, e) => { s.KillColor = kill.Hex; App.State.MarkSettingsChanged(); App.React(true); };
+            card.Add(new SettingRow(Glyph.Brush, "Kill Color", "Color of the kill flash (bigger, with a ring)", kill));
+            var size = new Stepper(Glyph.Minimize, Glyph.Add, 0.25, 2, 0.5, 3, 1) { Value = s.ReactionSize };
+            size.ValueChanged += (o, e) => { s.ReactionSize = size.Value; App.State.MarkSettingsChanged(); App.React(false); };
+            card.Add(new SettingRow(Glyph.Resize, "Size", "Scale of the hit marker and kill flash", size));
+            var dur = new Dropdown { Width = Theme.S(200) };
+            int[] durations = { 120, 180, 220, 300, 400, 600 };
+            foreach (var d in durations) dur.Items.Add(d + " ms");
+            dur.SelectedIndex = Math.Max(0, Array.IndexOf(durations, s.ReactionMs));
+            if (Array.IndexOf(durations, s.ReactionMs) < 0) dur.SelectedIndex = 2;
+            dur.SelectedIndexChanged += (o, e) => { s.ReactionMs = durations[dur.SelectedIndex]; App.State.MarkSettingsChanged(); App.React(false); };
+            card.Add(new SettingRow(Glyph.Clock, "Duration", "How long the hit marker stays on screen (the kill flash lasts a bit longer)", dur));
+            var testHit = new FlatButton(L.T("Hit"), Glyph.Target, ButtonKind.Secondary);
+            testHit.AutoSizeWidth();
+            testHit.Click += (o, e) => App.React(false);
+            var testKill = new FlatButton(L.T("Kill"), Glyph.Fire, ButtonKind.Secondary);
+            testKill.AutoSizeWidth();
+            testKill.Click += (o, e) => App.React(true);
+            card.Add(new SettingRow(Glyph.Eye, "Preview", "Plays on your on-screen crosshair", new HStack(testHit, testKill) { Width = testHit.Width + testKill.Width + Theme.S(8), Height = Theme.S(38) }));
+            scroll.Stack.Controls.Add(card);
+            scroll.Stack.Controls.Add(new WrapLabel(L.T("An overlay can't see what happens in the game, so reactions play when you press their keys — not on real hits."), Theme.Small, Theme.TextDim));
+        }
+
+        void BuildUpdates()
+        {
+            var s = App.State.Settings;
+            Caption(Glyph.Refresh, "Updates");
+            var card = new SettingsCard();
+            card.Add(new SettingRow(Glyph.Refresh, "Check for Updates Automatically", "Look for a new version on GitHub about once a day", Toggle(s.AutoUpdate, v => s.AutoUpdate = v)));
+            var check = new FlatButton(L.T("Check now"), Glyph.Refresh, ButtonKind.Secondary);
+            check.AutoSizeWidth();
+            check.Click += (o, e) => MainForm.Instance.CheckForUpdates(true);
+            string last = DateTime.TryParse(s.LastUpdateCheck, null, System.Globalization.DateTimeStyles.RoundtripKind, out var when)
+                ? L.T("Last checked") + " " + when.ToLocalTime().ToString("g") : L.T("Not checked yet");
+            card.Add(new SettingRow(Glyph.Info, L.T("Version") + " " + Program.Version, last, check));
+            var notes = new FlatButton(L.T("Release notes"), Glyph.News, ButtonKind.Secondary);
+            notes.AutoSizeWidth();
+            notes.Click += (o, e) => { try { Process.Start(Updater.ReleasesPage); } catch { } };
+            card.Add(new SettingRow(Glyph.News, "What's New", "See every release on GitHub", notes));
+            scroll.Stack.Controls.Add(card);
+        }
+
         void BuildProfiles()
         {
             var s = App.State.Settings;
@@ -287,32 +370,46 @@ namespace CrosshairY.UI.Pages
 
         void BuildActions()
         {
-            Caption(Glyph.Wrench, "Actions");
+            Caption(Glyph.Wrench, "Backup & Data");
             var card = new SettingsCard();
-            var export = new FlatButton("Back up…", Glyph.Upload, ButtonKind.Secondary);
+            var export = new FlatButton(L.T("Back up…"), Glyph.Upload, ButtonKind.Secondary);
             export.AutoSizeWidth();
             export.Click += (o, e) =>
             {
-                using (var d = new SaveFileDialog { Filter = "CrosshairY backup|*.json", FileName = "CrosshairY-backup-" + DateTime.Now.ToString("yyyy-MM-dd") + ".json" })
+                using (var d = new SaveFileDialog { Filter = L.T("CrosshairY backup") + "|*.crosshairy;*.json", FileName = "CrosshairY-backup-" + DateTime.Now.ToString("yyyy-MM-dd") + ".crosshairy" })
                     if (d.ShowDialog(Main) == DialogResult.OK)
                     {
                         try { File.WriteAllText(d.FileName, App.State.ExportAll()); MainForm.Instance.ShowToast("Backup saved", Glyph.Upload); }
                         catch (Exception ex) { DarkDialog.Info(Main, "Backup failed", ex.Message); }
                     }
             };
-            card.Add(new SettingRow(Glyph.Upload, "Back Up", "Save all crosshairs, categories and profiles to a file", export));
-            var import = new FlatButton("Restore…", Glyph.Download, ButtonKind.Secondary);
+            card.Add(new SettingRow(Glyph.Upload, "Back Up", "Save crosshairs, profiles, keybinds, loadouts, settings and custom patterns to one file", export));
+            var import = new FlatButton(L.T("Restore…"), Glyph.Download, ButtonKind.Secondary);
             import.AutoSizeWidth();
             import.Click += (o, e) =>
             {
-                using (var d = new OpenFileDialog { Filter = "CrosshairY backup or crosshair JSON|*.json|All files|*.*" })
+                using (var d = new OpenFileDialog { Filter = L.T("CrosshairY backup or crosshair JSON") + "|*.crosshairy;*.json|" + L.T("All files") + "|*.*" })
                 {
                     if (d.ShowDialog(Main) != DialogResult.OK) return;
                     try
                     {
                         string json = File.ReadAllText(d.FileName);
                         var root = Json.Parse(json);
-                        if (J.List(root, "crosshairs") != null) MainForm.Instance.ShowToast(App.State.ImportAll(json) + " crosshairs restored", Glyph.Download);
+                        if (J.List(root, "crosshairs") != null || J.List(root, "profiles") != null)
+                        {
+                            bool replace = J.Str(root, "kind") != "profile" && J.Obj(root, "settings") != null
+                                && DarkDialog.Confirm(Main, L.T("Restore backup"), L.T("Replace everything with this backup? Choose Cancel to merge it into what you have instead."), L.T("Replace everything"), true);
+                            if (replace)
+                            {
+                                App.State.RestoreAll(json);
+                                App.ActivateProfile(App.State.ActiveProfile.Id);
+                                App.PushCrosshair();
+                                App.UpdateOverlay();
+                                MainForm.Instance.ShowToast(L.T("Backup restored"), Glyph.Download);
+                            }
+                            else MainForm.Instance.ShowToast(string.Format(L.T("{0} crosshairs added"), App.State.ImportAll(json)), Glyph.Download);
+                            Build();
+                        }
                         else
                         {
                             var layers = Import.CodeImporter.ParseLayers(root);
@@ -323,7 +420,7 @@ namespace CrosshairY.UI.Pages
                     catch (Exception ex) { DarkDialog.Info(Main, "Couldn't import", ex.Message); }
                 }
             };
-            card.Add(new SettingRow(Glyph.Download, "Restore", "Add crosshairs and profiles from a backup or JSON file", import));
+            card.Add(new SettingRow(Glyph.Download, "Restore", "Restore a backup (replace or merge), an exported profile, or add a crosshair JSON file", import));
             var open = new FlatButton("Open folder", Glyph.Folder, ButtonKind.Secondary);
             open.AutoSizeWidth();
             open.Click += (o, e) => { try { Process.Start("explorer.exe", "\"" + AppState.DataDir + "\""); } catch { } };

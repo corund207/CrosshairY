@@ -52,7 +52,7 @@ namespace CrosshairY.UI.Controls
 
         public FlatButton(string text = "", string glyph = null, ButtonKind kind = ButtonKind.Secondary)
         {
-            Text = text;
+            Text = Core.L.T(text);
             Glyph = glyph;
             Kind = kind;
             Cursor = Cursors.Hand;
@@ -641,7 +641,7 @@ namespace CrosshairY.UI.Controls
     {
         public DarkLabel(string text, Font font = null, Color? color = null)
         {
-            Text = text;
+            Text = Core.L.T(text);
             Font = font ?? Theme.Body;
             ForeColor = color ?? Theme.Text;
             BackColor = Color.Transparent;
@@ -656,7 +656,7 @@ namespace CrosshairY.UI.Controls
     {
         public WrapLabel(string text, Font font = null, Color? color = null)
         {
-            Text = text;
+            Text = Core.L.T(text);
             Font = font ?? Theme.Small;
             ForeColor = color ?? Theme.TextDim;
             BackColor = Color.Transparent;
@@ -776,8 +776,8 @@ namespace CrosshairY.UI.Controls
 
         public Card(string title = null, string subtitle = null)
         {
-            Title = title;
-            Subtitle = subtitle;
+            Title = Core.L.T(title);
+            Subtitle = Core.L.T(subtitle);
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
             BackColor = Theme.Surface;
             Padding = new Padding(Theme.S(18), Theme.S(title == null ? 16 : subtitle == null ? 50 : 66), Theme.S(18), Theme.S(18));
@@ -828,8 +828,8 @@ namespace CrosshairY.UI.Controls
 
         public Row(string title, Control editor, string description = null, int editorWidth = 0, bool fill = false)
         {
-            this.title = title;
-            desc = description;
+            this.title = Core.L.T(title);
+            desc = Core.L.T(description);
             Editor = editor;
             EditorFill = fill;
             EditorWidth = editorWidth;
@@ -993,7 +993,7 @@ namespace CrosshairY.UI.Controls
 
         public static ToolStripMenuItem Item(this ToolStripItemCollection items, string text, Action onClick, bool enabled = true, bool isChecked = false)
         {
-            var it = new ToolStripMenuItem(text) { Enabled = enabled, Checked = isChecked, ForeColor = Theme.Text };
+            var it = new ToolStripMenuItem(Core.L.T(text)) { Enabled = enabled, Checked = isChecked, ForeColor = Theme.Text };
             if (onClick != null) it.Click += (s, e) => onClick();
             items.Add(it);
             return it;

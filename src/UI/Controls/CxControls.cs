@@ -40,7 +40,7 @@ namespace CrosshairY.UI.Controls
             int x = 0;
             for (int i = 0; i < Tabs.Count; i++)
             {
-                int w = Theme.TextWidth(Tabs[i].Text, Font) + Theme.S(Tabs[i].Glyph != null ? 62 : 40);
+                int w = Theme.TextWidth(Core.L.T(Tabs[i].Text), Font) + Theme.S(Tabs[i].Glyph != null ? 62 : 40);
                 r[i] = new Rectangle(x, 0, w, Height);
                 x += w;
             }
@@ -97,7 +97,7 @@ namespace CrosshairY.UI.Controls
                     Theme.DrawIcon(g, Tabs[i].Glyph, Theme.Icon, c, new Rectangle(x, 0, Theme.S(18), Height));
                     x += Theme.S(26);
                 }
-                Theme.DrawText(g, Tabs[i].Text, Font, c, new Rectangle(x, 0, r.Right - x, Height));
+                Theme.DrawText(g, Core.L.T(Tabs[i].Text), Font, c, new Rectangle(x, 0, r.Right - x, Height));
                 if (on) using (var b = new SolidBrush(Theme.Accent)) g.FillRectangle(b, r.X, Height - Theme.S(2), r.Width, Theme.S(2));
             }
             var ar = ActionRects();
@@ -203,7 +203,7 @@ namespace CrosshairY.UI.Controls
                 var r = l[i];
                 if (it.Header)
                 {
-                    Theme.DrawText(g, it.Text.ToUpperInvariant(), Theme.Caption, Theme.TextMute, new Rectangle(r.X + Theme.S(6), r.Y + Theme.S(14), r.Width, Theme.S(22)));
+                    Theme.DrawText(g, Core.L.Upper(it.Text), Theme.Caption, Theme.TextMute, new Rectangle(r.X + Theme.S(6), r.Y + Theme.S(14), r.Width, Theme.S(22)));
                     continue;
                 }
                 bool on = i == selected;
@@ -221,7 +221,7 @@ namespace CrosshairY.UI.Controls
                     x += Theme.S(30);
                 }
                 int countW = string.IsNullOrEmpty(it.Count) ? 0 : Theme.S(36);
-                Theme.DrawText(g, it.Text, on ? Theme.BodyBold : Font, on ? Theme.Text : Theme.Blend(Theme.Text, Theme.Well, .1), new Rectangle(x, r.Y, r.Right - x - countW - Theme.S(8), r.Height));
+                Theme.DrawText(g, Core.L.T(it.Text), on ? Theme.BodyBold : Font, on ? Theme.Text : Theme.Blend(Theme.Text, Theme.Well, .1), new Rectangle(x, r.Y, r.Right - x - countW - Theme.S(8), r.Height));
                 if (countW > 0) Theme.DrawText(g, it.Count, Theme.Small, Theme.TextDim, new Rectangle(r.Right - countW - Theme.S(10), r.Y, countW, r.Height), Theme.Right);
             }
             if (AddText != null)
@@ -246,7 +246,7 @@ namespace CrosshairY.UI.Controls
 
         public SettingRow(string glyph, string title, string desc, Control editor, int editorWidth = 0, bool sub = false)
         {
-            this.glyph = glyph; this.title = title; this.desc = desc;
+            this.glyph = glyph; this.title = Core.L.T(title); this.desc = Core.L.T(desc);
             Editor = editor; EditorWidth = editorWidth; Sub = sub;
             BackColor = Theme.Surface;
             Height = Theme.S(sub ? 58 : 72);
@@ -345,7 +345,7 @@ namespace CrosshairY.UI.Controls
         public CaptionLabel(string glyph, string text)
         {
             this.glyph = glyph;
-            Text = text;
+            Text = Core.L.T(text);
             Height = Theme.S(34);
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
         }
@@ -421,7 +421,7 @@ namespace CrosshairY.UI.Controls
 
         public InspectorSection(string title)
         {
-            this.title = title;
+            this.title = Core.L.T(title);
             collapsed = collapsedTitles.Contains(title);
             BackColor = Theme.Chrome;
             Body.BackColor = Theme.Chrome;
@@ -479,7 +479,7 @@ namespace CrosshairY.UI.Controls
 
         public FieldGroup(string label, Control editor)
         {
-            this.label = label;
+            this.label = Core.L.T(label);
             Editor = editor;
             BackColor = Theme.Chrome;
             Controls.Add(editor);
@@ -647,6 +647,7 @@ namespace CrosshairY.UI.Controls
 
         public void Show(string text, string icon = null, int ms = 2200)
         {
+            text = Core.L.T(text);
             Text = text;
             glyph = icon ?? Glyph.Check;
             Width = Theme.TextWidth(text, Theme.BodyBold) + Theme.S(74);

@@ -20,6 +20,20 @@ namespace CrosshairY.Core
         public string Weapon = "";   // Recoil pattern key ("Game|Name") or "off"
         public string Key = "";
         public string PadKey = "";
+        public double Scale = 1;     // multiplies each tracker's own scale while this slot is selected
+        public string CrosshairId = ""; // optional: switch to this crosshair when the slot is selected
+
+        public RecoilSlot Copy() => new RecoilSlot { Weapon = Weapon, Key = Key, PadKey = PadKey, Scale = Scale, CrosshairId = CrosshairId };
+
+        public Dictionary<string, object> ToJson() => J.O("weapon", Weapon, "key", Key, "padKey", PadKey, "scale", Scale, "crosshairId", CrosshairId);
+
+        public static RecoilSlot FromJson(object s)
+        {
+            var r = new RecoilSlot { Weapon = J.Str(s, "weapon", ""), Key = J.Str(s, "key", ""), PadKey = J.Str(s, "padKey", ""),
+                Scale = J.Num(s, "scale", 1), CrosshairId = J.Str(s, "crosshairId", "") };
+            if (r.Scale <= 0) r.Scale = 1;
+            return r;
+        }
     }
 
     public sealed class SavedPosition
@@ -54,6 +68,7 @@ namespace CrosshairY.Core
         public string PrevKey = "";
         public string MoveUpKey = "", MoveDownKey = "", MoveLeftKey = "", MoveRightKey = "", CenterKey = "";
         public string SizeUpKey = "", SizeDownKey = "";
+        public string HitKey = "", HitPad = "", KillKey = "", KillPad = "";
         public List<CrosshairBind> CrosshairBinds = new List<CrosshairBind>();
         public List<SavedPosition> Positions = new List<SavedPosition>();
         public List<RecoilSlot> RecoilSlots = new List<RecoilSlot>();
@@ -65,7 +80,7 @@ namespace CrosshairY.Core
             p.Processes = new List<string>(Processes);
             p.CrosshairBinds = CrosshairBinds.Select(b => new CrosshairBind { Key = b.Key, PadKey = b.PadKey, CrosshairId = b.CrosshairId }).ToList();
             p.Positions = Positions.Select(x => new SavedPosition { Name = x.Name, X = x.X, Y = x.Y }).ToList();
-            p.RecoilSlots = RecoilSlots.Select(x => new RecoilSlot { Weapon = x.Weapon, Key = x.Key, PadKey = x.PadKey }).ToList();
+            p.RecoilSlots = RecoilSlots.Select(x => x.Copy()).ToList();
             return p;
         }
 
@@ -79,7 +94,8 @@ namespace CrosshairY.Core
             "togglePad", TogglePad, "firePad", FirePad, "aimPad", AimPad, "reloadPad", ReloadPad, "nextPad", NextPad, "prevPad", PrevPad, "positionKeys", PositionKeys, "nextWeaponKey", NextWeaponKey, "prevWeaponKey", PrevWeaponKey, "nextWeaponPad", NextWeaponPad, "prevWeaponPad", PrevWeaponPad,
             "crosshairBinds", CrosshairBinds.Select(b => (object)J.O("key", b.Key, "padKey", b.PadKey, "crosshairId", b.CrosshairId)).ToList(),
             "positions", Positions.Select(p => (object)J.O("name", p.Name, "x", p.X, "y", p.Y)).ToList(),
-            "recoilSlots", RecoilSlots.Select(s => (object)J.O("weapon", s.Weapon, "key", s.Key, "padKey", s.PadKey)).ToList());
+            "hitKey", HitKey, "hitPad", HitPad, "killKey", KillKey, "killPad", KillPad,
+            "recoilSlots", RecoilSlots.Select(s => (object)s.ToJson()).ToList());
 
         public static Profile FromJson(object o)
         {
@@ -119,13 +135,17 @@ namespace CrosshairY.Core
                 MoveRightKey = J.Str(o, "moveRightKey", ""),
                 CenterKey = J.Str(o, "centerKey", ""),
                 SizeUpKey = J.Str(o, "sizeUpKey", ""),
-                SizeDownKey = J.Str(o, "sizeDownKey", "")
+                SizeDownKey = J.Str(o, "sizeDownKey", ""),
+                HitKey = J.Str(o, "hitKey", ""),
+                HitPad = J.Str(o, "hitPad", ""),
+                KillKey = J.Str(o, "killKey", ""),
+                KillPad = J.Str(o, "killPad", "")
             };
             if (p.Scale <= 0) p.Scale = 1;
             foreach (var b in J.List(o, "crosshairBinds") ?? new List<object>())
                 p.CrosshairBinds.Add(new CrosshairBind { Key = J.Str(b, "key", ""), PadKey = J.Str(b, "padKey", ""), CrosshairId = J.Str(b, "crosshairId", "") });
             foreach (var s in J.List(o, "recoilSlots") ?? new List<object>())
-                p.RecoilSlots.Add(new RecoilSlot { Weapon = J.Str(s, "weapon", ""), Key = J.Str(s, "key", ""), PadKey = J.Str(s, "padKey", "") });
+                p.RecoilSlots.Add(RecoilSlot.FromJson(s));
             foreach (var x in J.List(o, "positions") ?? new List<object>())
                 p.Positions.Add(new SavedPosition { Name = J.Str(x, "name", "Position"), X = (int)J.Num(x, "x"), Y = (int)J.Num(x, "y") });
             return p;
@@ -154,6 +174,20 @@ namespace CrosshairY.Core
         public int FrameRate = 144;
         public string DisplayMode = "overlay";       // overlay | assist (re-asserts topmost whenever a game takes focus)
         public bool SidebarCollapsed;
+        // updates
+        public bool AutoUpdate = true;
+        public string LastUpdateCheck = "";          // ISO date of the last automatic check
+        public string SkippedVersion = "";
+        // first-run tour, language
+        public bool TourDone;
+        public string Language = "en";
+        // reactions (hit marker / kill flash)
+        public bool HitOnFire;
+        public string HitStyle = "x";                // x | ring | brackets
+        public string HitColor = "#FFFFFF";
+        public string KillColor = "#FF3030";
+        public double ReactionSize = 1;
+        public int ReactionMs = 220;
 
         public Dictionary<string, object> ToJson() => J.O(
             "monitor", Monitor, "visibleOnLaunch", VisibleOnLaunch, "launchOnStartup", LaunchOnStartup,
@@ -162,7 +196,11 @@ namespace CrosshairY.Core
             "controllerSupport", ControllerSupport, "ignoreDpiScaling", IgnoreDpiScaling, "showInCapture", ShowInCapture,
             "showTrayNotifications", ShowTrayNotifications, "activeProfileId", ActiveProfileId, "librarySort", LibrarySort,
             "firstRunDone", FirstRunDone, "designerBackground", DesignerBackground, "designerGrid", DesignerGrid,
-            "frameRate", FrameRate, "displayMode", DisplayMode, "sidebarCollapsed", SidebarCollapsed);
+            "frameRate", FrameRate, "displayMode", DisplayMode, "sidebarCollapsed", SidebarCollapsed,
+            "autoUpdate", AutoUpdate, "lastUpdateCheck", LastUpdateCheck, "skippedVersion", SkippedVersion,
+            "tourDone", TourDone, "language", Language,
+            "hitOnFire", HitOnFire, "hitStyle", HitStyle, "hitColor", HitColor, "killColor", KillColor,
+            "reactionSize", ReactionSize, "reactionMs", ReactionMs);
 
         public static Settings FromJson(object o) => new Settings
         {
@@ -185,7 +223,18 @@ namespace CrosshairY.Core
             DesignerGrid = J.Bool(o, "designerGrid", true),
             FrameRate = (int)J.Num(o, "frameRate", 144),
             DisplayMode = J.Str(o, "displayMode", "overlay"),
-            SidebarCollapsed = J.Bool(o, "sidebarCollapsed")
+            SidebarCollapsed = J.Bool(o, "sidebarCollapsed"),
+            AutoUpdate = J.Bool(o, "autoUpdate", true),
+            LastUpdateCheck = J.Str(o, "lastUpdateCheck", ""),
+            SkippedVersion = J.Str(o, "skippedVersion", ""),
+            TourDone = J.Bool(o, "tourDone"),
+            Language = J.Str(o, "language", "en"),
+            HitOnFire = J.Bool(o, "hitOnFire"),
+            HitStyle = J.Str(o, "hitStyle", "x"),
+            HitColor = J.Str(o, "hitColor", "#FFFFFF"),
+            KillColor = J.Str(o, "killColor", "#FF3030"),
+            ReactionSize = Math.Max(0.25, J.Num(o, "reactionSize", 1)),
+            ReactionMs = (int)Math.Max(60, J.Num(o, "reactionMs", 220))
         };
     }
 
@@ -344,20 +393,67 @@ namespace CrosshairY.Core
             MarkProfilesChanged();
         }
 
+        /// <summary>Full backup: settings, profiles (keybinds, loadouts), library, categories and custom recoil patterns.</summary>
         public string ExportAll() => Json.Serialize(J.O(
-            "app", "CrosshairY", "version", 1,
+            "app", "CrosshairY", "version", 2, "appVersion", Program.Version, "exported", DateTime.UtcNow.ToString("o"),
+            "settings", Settings.ToJson(),
             "folders", Folders.Cast<object>().ToList(),
             "crosshairs", Library.Select(e => (object)e.ToJson()).ToList(),
-            "profiles", Profiles.Select(p => (object)p.ToJson()).ToList()), true);
+            "profiles", Profiles.Select(p => (object)p.ToJson()).ToList(),
+            "patterns", Recoil.CustomPatterns.Select(p => (object)Recoil.PatternToJson(p)).ToList()), true);
 
+        /// <summary>One profile with the crosshairs it refers to, so it works on another PC.</summary>
+        public string ExportProfile(Profile p)
+        {
+            var ids = new HashSet<string> { p.CrosshairId, p.AimCrosshairId };
+            foreach (var b in p.CrosshairBinds) ids.Add(b.CrosshairId);
+            foreach (var s in p.RecoilSlots) ids.Add(s.CrosshairId);
+            return Json.Serialize(J.O("app", "CrosshairY", "kind", "profile", "version", 2,
+                "profiles", J.A(p.ToJson()),
+                "crosshairs", Library.Where(e => ids.Contains(e.Id)).Select(e => (object)e.ToJson()).ToList()), true);
+        }
+
+        /// <summary>Replaces everything with a backup's contents (settings, library, profiles, custom patterns).</summary>
+        public void RestoreAll(string json)
+        {
+            var root = Json.Parse(json);
+            if (J.List(root, "crosshairs") == null && J.List(root, "profiles") == null) throw new InvalidDataException("This file isn't a CrosshairY backup.");
+            Library = (J.List(root, "crosshairs") ?? new List<object>()).Select(CrosshairEntry.FromJson).ToList();
+            Folders = J.StrList(root, "folders");
+            Profiles = (J.List(root, "profiles") ?? new List<object>()).Select(Profile.FromJson).ToList();
+            if (Profiles.Count == 0) Profiles.Add(new Profile());
+            if (J.Obj(root, "settings") is Dictionary<string, object> s)
+            {
+                var keep = Settings;
+                Settings = Settings.FromJson(s);
+                Settings.FirstRunDone = true;
+                Settings.Monitor = keep.Monitor;        // monitors are per-PC
+            }
+            if (J.List(root, "patterns") is List<object> pats) Recoil.SetCustom(pats.Select(Recoil.PatternFromJson).Where(x => x != null));
+            var _ = ActiveProfile;
+            SaveAllNow();
+            MarkLibraryChanged();
+            MarkProfilesChanged();
+            MarkSettingsChanged();
+        }
+
+        /// <summary>Merges a backup or exported profile: adds crosshairs, profiles and custom patterns that aren't here yet.</summary>
         public int ImportAll(string json)
         {
             var root = Json.Parse(json);
             int added = 0;
+            var idMap = new Dictionary<string, string>();
             foreach (var c in J.List(root, "crosshairs") ?? new List<object>())
             {
                 var e = CrosshairEntry.FromJson(c);
-                if (Find(e.Id) != null) e.Id = Guid.NewGuid().ToString("N");
+                if (Find(e.Id) != null)
+                {
+                    // identical design already here: reuse it; otherwise keep both
+                    if (Json.Serialize(Find(e.Id).Layers) == Json.Serialize(e.Layers)) { idMap[e.Id] = e.Id; continue; }
+                    string old = e.Id;
+                    e.Id = Guid.NewGuid().ToString("N");
+                    idMap[old] = e.Id;
+                }
                 Add(e, false);
                 added++;
             }
@@ -365,8 +461,23 @@ namespace CrosshairY.Core
             foreach (var p in J.List(root, "profiles") ?? new List<object>())
             {
                 var prof = Profile.FromJson(p);
-                if (Profiles.Any(x => x.Id == prof.Id)) continue;
+                if (Profiles.Any(x => x.Id == prof.Id))
+                {
+                    if (J.Str(root, "kind") != "profile") continue;
+                    prof.Id = Guid.NewGuid().ToString("N");   // importing a profile twice makes a copy
+                    prof.Name += " (imported)";
+                }
+                Func<string, string> map = id => id != null && idMap.TryGetValue(id, out var n) ? n : id;
+                prof.CrosshairId = map(prof.CrosshairId);
+                prof.AimCrosshairId = map(prof.AimCrosshairId);
+                foreach (var b in prof.CrosshairBinds) b.CrosshairId = map(b.CrosshairId);
+                foreach (var s in prof.RecoilSlots) s.CrosshairId = map(s.CrosshairId);
                 Profiles.Add(prof);
+            }
+            if (J.List(root, "patterns") is List<object> pats)
+            {
+                var incoming = pats.Select(Recoil.PatternFromJson).Where(x => x != null && Recoil.CustomPatterns.All(c => c.Key != x.Key)).ToList();
+                if (incoming.Count > 0) Recoil.SetCustom(Recoil.CustomPatterns.Concat(incoming));
             }
             MarkLibraryChanged();
             MarkProfilesChanged();

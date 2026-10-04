@@ -21,6 +21,7 @@ namespace CrosshairY.UI.Dialogs
 
         public DarkDialog(string title, int width = 520)
         {
+            title = L.T(title);
             Text = title;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = MinimizeBox = false;
