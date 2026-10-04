@@ -1,0 +1,42 @@
+name: Gallery
+
+# Community gallery submissions (issues made from .github/ISSUE_TEMPLATE/gallery.yml):
+#   opened / edited  -> validate the code, render a preview, comment, label (gallery / needs-fix)
+#   labeled approved -> add to gallery/gallery.json, commit, close the issue
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: gallery
+  cancel-in-progress: false
+
+jobs:
+  review:
+    if: >-
+      (github.event.action == 'opened' || github.event.action == 'edited') &&
+      github.event.issue.state == 'open' &&
+      (startsWith(github.event.issue.title, 'Gallery:') || contains(github.event.issue.labels.*.name, 'gallery'))
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review submission
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./tools/gallery.ps1 -Mode review -Issue ${{ github.event.issue.number }}
+
+  publish:
+    if: github.event.action == 'labeled' && github.event.label.name == 'approved'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish to the gallery
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./tools/gallery.ps1 -Mode publish -Issue ${{ github.event.issue.number }} -Sender "${{ github.event.sender.login }}"
